@@ -1,15 +1,9 @@
 package ru.ylab.domain.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 import ru.ylab.domain.enums.Role;
 
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
+@Data
 public class User {
     private int id;
     private String name;

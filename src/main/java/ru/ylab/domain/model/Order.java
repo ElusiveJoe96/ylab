@@ -1,16 +1,12 @@
 package ru.ylab.domain.model;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 import ru.ylab.domain.enums.OrderStatus;
 import ru.ylab.domain.enums.OrderType;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@ToString
+@Data
 public class Order {
     private int id;
     private int carId;

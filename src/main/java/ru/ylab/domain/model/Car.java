@@ -1,15 +1,10 @@
 package ru.ylab.domain.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+
+import lombok.Data;
 import ru.ylab.domain.enums.CarStatus;
 
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
+@Data
 public class Car {
     private int id;
     private String brand;
