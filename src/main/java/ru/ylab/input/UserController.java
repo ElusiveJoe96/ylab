@@ -2,21 +2,21 @@ package ru.ylab.input;
 
 import ru.ylab.domain.enums.Role;
 import ru.ylab.domain.model.User;
-import ru.ylab.service.UserService;
+import ru.ylab.service.UserServiceImpl;
 
 import java.util.Optional;
 import java.util.Scanner;
 
 public class UserController {
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(UserServiceImpl userServiceImpl) {
+        this.userServiceImpl = userServiceImpl;
     }
 
     public void registerUser(Scanner scanner) {
-        User details = userService.getUserDetails(scanner);
-        userService.registerUser(details.getName(), details.getEmail(),
+        User details = userServiceImpl.getUserDetails(scanner);
+        userServiceImpl.registerUser(details.getName(), details.getEmail(),
                 details.getPassword(), details.getRole(), details.getContactInfo());
     }
 
@@ -26,7 +26,7 @@ public class UserController {
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
 
-        Optional<User> user = userService.login(email, password);
+        Optional<User> user = userServiceImpl.login(email, password);
         return user.isPresent();
     }
 
@@ -37,12 +37,12 @@ public class UserController {
         System.out.print("Enter new role (ADMIN, MANAGER, CLIENT): ");
         Role newRole = Role.valueOf(scanner.nextLine().toUpperCase());
 
-        userService.updateUserRole(userId, newRole);
+        userServiceImpl.updateUserRole(userId, newRole);
         System.out.println("User role updated successfully.");
     }
 
     public void showMyInfo() {
-        userService.viewMyInfo();
+        userServiceImpl.viewMyInfo();
     }
 
     public void updateUser(Scanner scanner) {
@@ -61,11 +61,11 @@ public class UserController {
         System.out.print("Enter new contact info (leave empty to keep current): ");
         String contactInfo = scanner.nextLine();
 
-        userService.updateUser(userId, name, email, password, role, contactInfo);
+        userServiceImpl.updateUser(userId, name, email, password, role, contactInfo);
     }
 
     public void viewAllUsers() {
-        userService.getAllUsers();
+        userServiceImpl.getAllUsers();
     }
 
 

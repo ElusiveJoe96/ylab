@@ -3,16 +3,16 @@ package ru.ylab.input;
 
 import ru.ylab.domain.enums.OrderStatus;
 import ru.ylab.domain.enums.OrderType;
-import ru.ylab.service.OrderService;
+import ru.ylab.service.OrderServiceImpl;
 
 import java.util.Scanner;
 
 public class OrderController {
 
-    private final OrderService orderService;
+    private final OrderServiceImpl orderServiceImpl;
 
-    public OrderController(OrderService orderService) {
-        this.orderService = orderService;
+    public OrderController(OrderServiceImpl orderServiceImpl) {
+        this.orderServiceImpl = orderServiceImpl;
     }
 
     public void createOrder(Scanner scanner, int userId) {
@@ -22,11 +22,11 @@ public class OrderController {
         System.out.print("Enter order type (PURCHASE, SERVICE): ");
         OrderType type = OrderType.valueOf(scanner.nextLine().toUpperCase());
 
-        orderService.createOrder(carId, userId, type);
+        orderServiceImpl.createOrder(carId, userId, type);
     }
 
     public void viewAllOrders() {
-        orderService.getAllOrders();
+        orderServiceImpl.getAllOrders();
     }
 
     public void updateOrderStatus(Scanner scanner) {
@@ -36,10 +36,10 @@ public class OrderController {
         System.out.print("Enter new status (PENDING, COMPLETED, CANCELED): ");
         OrderStatus status = OrderStatus.valueOf(scanner.nextLine().toUpperCase());
 
-        orderService.updateOrderStatus(orderId, status);
+        orderServiceImpl.updateOrderStatus(orderId, status);
     }
 
     public void viewMyOrders(int userId) {
-        orderService.getOrdersByUserId(userId);
+        orderServiceImpl.getOrdersByUserId(userId);
     }
 }

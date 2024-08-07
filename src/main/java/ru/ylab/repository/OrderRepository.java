@@ -1,4 +1,4 @@
-package ru.ylab.output;
+package ru.ylab.repository;
 
 import ru.ylab.domain.model.Order;
 import ru.ylab.domain.enums.OrderStatus;

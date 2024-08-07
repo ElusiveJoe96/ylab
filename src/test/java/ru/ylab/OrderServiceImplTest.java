@@ -11,8 +11,8 @@ import ru.ylab.domain.enums.OrderType;
 import ru.ylab.domain.enums.Role;
 import ru.ylab.domain.model.Order;
 import ru.ylab.domain.model.User;
-import ru.ylab.output.OrderRepository;
-import ru.ylab.service.OrderService;
+import ru.ylab.repository.OrderRepository;
+import ru.ylab.service.OrderServiceImpl;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
-public class OrderServiceTest {
+public class OrderServiceImplTest {
 
     @Mock
     private OrderRepository orderRepository;
@@ -30,7 +30,7 @@ public class OrderServiceTest {
     private AuditService auditService;
 
     @InjectMocks
-    private OrderService orderService;
+    private OrderServiceImpl orderServiceImpl;
 
     @BeforeEach
     public void setUp() {
@@ -49,7 +49,7 @@ public class OrderServiceTest {
         when(orderRepository.findAll()).thenReturn(List.of(new Order(1, carId, userId,
                 LocalDateTime.now(), OrderStatus.COMPLETED, type)));
 
-        orderService.createOrder(carId, userId, type);
+        orderServiceImpl.createOrder(carId, userId, type);
 
         verify(orderRepository, times(1)).save(any(Order.class));
         verify(auditService, times(1)).logAction(anyInt(),
@@ -64,7 +64,7 @@ public class OrderServiceTest {
 
         when(orderRepository.findById(orderId)).thenReturn(order);
 
-        orderService.updateOrderStatus(orderId, newStatus);
+        orderServiceImpl.updateOrderStatus(orderId, newStatus);
 
         verify(orderRepository, times(1)).save(order);
         verify(auditService, times(1)).logAction(anyInt(),
@@ -79,7 +79,7 @@ public class OrderServiceTest {
 
         when(orderRepository.findById(orderId)).thenReturn(null);
 
-        orderService.updateOrderStatus(orderId, newStatus);
+        orderServiceImpl.updateOrderStatus(orderId, newStatus);
 
         verify(orderRepository, never()).save(any(Order.class));
         verify(auditService, never()).logAction(anyInt(), anyString(), anyString());
@@ -92,7 +92,7 @@ public class OrderServiceTest {
 
         when(orderRepository.findById(orderId)).thenReturn(order);
 
-        orderService.deleteOrder(orderId);
+        orderServiceImpl.deleteOrder(orderId);
 
         verify(orderRepository, times(1)).delete(orderId);
         verify(auditService, times(1)).logAction(anyInt(),
@@ -105,7 +105,7 @@ public class OrderServiceTest {
 
         when(orderRepository.findById(orderId)).thenReturn(null);
 
-        orderService.deleteOrder(orderId);
+        orderServiceImpl.deleteOrder(orderId);
 
         verify(orderRepository, never()).delete(anyInt());
         verify(auditService, never()).logAction(anyInt(), anyString(), anyString());
@@ -118,7 +118,7 @@ public class OrderServiceTest {
 
         when(orderRepository.findAll()).thenReturn(List.of(order1, order2));
 
-        orderService.getAllOrders();
+        orderServiceImpl.getAllOrders();
 
         verify(orderRepository, times(1)).findAll();
     }
@@ -131,7 +131,7 @@ public class OrderServiceTest {
 
         when(orderRepository.findByStatus(status)).thenReturn(List.of(order1, order2));
 
-        List<Order> orders = orderService.getOrdersByStatus(status);
+        List<Order> orders = orderServiceImpl.getOrdersByStatus(status);
 
         assertEquals(2, orders.size());
         assertTrue(orders.contains(order1));
@@ -146,7 +146,7 @@ public class OrderServiceTest {
 
         when(orderRepository.findByClientId(userId)).thenReturn(List.of(order1, order2));
 
-        orderService.getOrdersByUserId(userId);
+        orderServiceImpl.getOrdersByUserId(userId);
 
         verify(orderRepository, times(1)).findByClientId(userId);
     }
@@ -159,7 +159,7 @@ public class OrderServiceTest {
 
         when(orderRepository.findByCarId(carId)).thenReturn(List.of(order1, order2));
 
-        List<Order> orders = orderService.getOrdersByCarId(carId);
+        List<Order> orders = orderServiceImpl.getOrdersByCarId(carId);
 
         assertEquals(2, orders.size());
         assertTrue(orders.contains(order1));
@@ -173,7 +173,7 @@ public class OrderServiceTest {
 
         when(orderRepository.findById(orderId)).thenReturn(order);
 
-        Order result = orderService.getOrderById(orderId);
+        Order result = orderServiceImpl.getOrderById(orderId);
 
         assertEquals(order, result);
     }

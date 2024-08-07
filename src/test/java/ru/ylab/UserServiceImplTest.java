@@ -8,8 +8,8 @@ import org.mockito.MockitoAnnotations;
 import ru.ylab.audit.AuditService;
 import ru.ylab.domain.enums.Role;
 import ru.ylab.domain.model.User;
-import ru.ylab.output.UserRepository;
-import ru.ylab.service.UserService;
+import ru.ylab.repository.UserRepository;
+import ru.ylab.service.UserServiceImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +17,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class UserServiceTest {
+public class UserServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
@@ -25,7 +25,7 @@ public class UserServiceTest {
     private AuditService auditService;
 
     @InjectMocks
-    private UserService userService;
+    private UserServiceImpl userServiceImpl;
 
     @BeforeEach
     public void setUp() {
@@ -41,7 +41,7 @@ public class UserServiceTest {
         Role role = Role.CLIENT;
         String contactInfo = "123-456-7890";
 
-        userService.registerUser(name, email, password, role, contactInfo);
+        userServiceImpl.registerUser(name, email, password, role, contactInfo);
 
         User user = new User(0, name, email, password, role, contactInfo);
         verify(userRepository, times(1)).save(user);
@@ -56,7 +56,7 @@ public class UserServiceTest {
         Role role = Role.CLIENT;
         String contactInfo = "123-456-7890";
 
-        userService.registerUser(name, email, password, role, contactInfo);
+        userServiceImpl.registerUser(name, email, password, role, contactInfo);
 
         verify(userRepository, never()).save(any(User.class));
         verify(auditService, never()).logAction(anyInt(), anyString(), anyString());
@@ -70,7 +70,7 @@ public class UserServiceTest {
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
-        Optional<User> loggedInUser = userService.login(email, password);
+        Optional<User> loggedInUser = userServiceImpl.login(email, password);
 
         verify(auditService, times(1)).logAction(user.getId(), "LOGIN",
                 "User logged in: " + email);
@@ -85,7 +85,7 @@ public class UserServiceTest {
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
-        Optional<User> loggedInUser = userService.login(email, password);
+        Optional<User> loggedInUser = userServiceImpl.login(email, password);
 
         verify(auditService, never()).logAction(anyInt(), anyString(), anyString());
         assertFalse(loggedInUser.isPresent());
@@ -104,7 +104,7 @@ public class UserServiceTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
         AuditService.loggedInUser = existingUser;
-        userService.updateUser(userId, name, email, password, role, contactInfo);
+        userServiceImpl.updateUser(userId, name, email, password, role, contactInfo);
 
         verify(userRepository, times(1)).save(existingUser);
         verify(auditService, times(1)).logAction(anyInt(), eq("UPDATE_USER"), anyString());
@@ -124,7 +124,7 @@ public class UserServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         AuditService.loggedInUser = user;
 
-        userService.deleteUser(userId);
+        userServiceImpl.deleteUser(userId);
 
         verify(userRepository, times(1)).delete(userId);
         verify(auditService, times(1)).logAction(anyInt(), eq("DELETE_USER"),
@@ -140,7 +140,7 @@ public class UserServiceTest {
 
         when(userRepository.findAll()).thenReturn(List.of(user1, user2));
 
-        userService.getAllUsers();
+        userServiceImpl.getAllUsers();
 
         verify(userRepository, times(1)).findAll();
     }
@@ -154,7 +154,7 @@ public class UserServiceTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         AuditService.loggedInUser = user;
-        userService.updateUserRole(userId, newRole);
+        userServiceImpl.updateUserRole(userId, newRole);
 
         verify(userRepository, times(1)).save(user);
         verify(auditService, times(1)).logAction(anyInt(),
@@ -167,7 +167,7 @@ public class UserServiceTest {
         AuditService.loggedInUser = new User(1, "John Doe", "john.doe@example.com",
                 "password", Role.CLIENT, "123-456-7890");
 
-        userService.viewMyInfo();
+        userServiceImpl.viewMyInfo();
     }
 
     @Test
@@ -178,7 +178,7 @@ public class UserServiceTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        Optional<User> result = userService.getUserById(userId);
+        Optional<User> result = userServiceImpl.getUserById(userId);
 
         assertTrue(result.isPresent());
         assertEquals(user, result.get());
@@ -192,7 +192,7 @@ public class UserServiceTest {
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
-        Optional<User> result = userService.getUserByEmail(email);
+        Optional<User> result = userServiceImpl.getUserByEmail(email);
 
         assertTrue(result.isPresent());
         assertEquals(user, result.get());
@@ -208,7 +208,7 @@ public class UserServiceTest {
 
         when(userRepository.findByRole(role)).thenReturn(List.of(user1, user2));
 
-        List<User> users = userService.getUsersByRole(role);
+        List<User> users = userServiceImpl.getUsersByRole(role);
 
         assertEquals(2, users.size());
         assertTrue(users.contains(user1));

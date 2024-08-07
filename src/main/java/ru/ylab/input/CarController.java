@@ -1,17 +1,17 @@
 package ru.ylab.input;
 
 import ru.ylab.domain.enums.CarStatus;
-import ru.ylab.service.CarService;
+import ru.ylab.service.CarServiceImpl;
 import ru.ylab.util.ValidationUtil;
 
 import java.util.Scanner;
 
 public class CarController {
 
-    private final CarService carService;
+    private final CarServiceImpl carServiceImpl;
 
-    public CarController(CarService carService) {
-        this.carService = carService;
+    public CarController(CarServiceImpl carServiceImpl) {
+        this.carServiceImpl = carServiceImpl;
     }
 
     public void addCar(Scanner scanner) {
@@ -26,7 +26,7 @@ public class CarController {
         System.out.print("Enter description: ");
         String description = scanner.nextLine();
 
-        carService.addCar(brand, model, year, price, description);
+        carServiceImpl.addCar(brand, model, year, price, description);
     }
 
 
@@ -51,7 +51,7 @@ public class CarController {
         System.out.print("Enter new description: ");
         String description = scanner.nextLine();
 
-        carService.updateCar(carId, brand, model, year, price, status, description);
+        carServiceImpl.updateCar(carId, brand, model, year, price, status, description);
     }
 
     public void deleteCar(Scanner scanner) {
@@ -59,11 +59,11 @@ public class CarController {
         int carId = scanner.nextInt();
         scanner.nextLine();
 
-        carService.deleteCar(carId);
+        carServiceImpl.deleteCar(carId);
     }
 
     public void viewAllCars() {
-        carService.getAllCars();
+        carServiceImpl.getAllCars();
     }
 
 

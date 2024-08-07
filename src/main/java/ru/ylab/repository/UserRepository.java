@@ -1,4 +1,4 @@
-package ru.ylab.output;
+package ru.ylab.repository;
 
 import ru.ylab.domain.model.User;
 import ru.ylab.domain.enums.Role;
