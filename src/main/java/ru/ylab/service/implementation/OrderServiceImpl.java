@@ -1,14 +1,17 @@
-package ru.ylab.service;
+package ru.ylab.service.implementation;
 
 import ru.ylab.audit.AuditService;
 import ru.ylab.domain.model.Order;
 import ru.ylab.domain.enums.OrderStatus;
 import ru.ylab.domain.enums.OrderType;
 import ru.ylab.repository.OrderRepository;
+import ru.ylab.service.OrderService;
+import ru.ylab.util.ValidationUtil;
 
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Scanner;
 
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
@@ -19,7 +22,13 @@ public class OrderServiceImpl implements OrderService {
         this.auditService = auditService;
     }
 
-    public void createOrder(int carId, int userId, OrderType type) {
+    //TODO swap args, more functions?
+    public void createOrder(int userId, Scanner scanner) {
+        System.out.print("Enter car ID: ");
+        int carId = ValidationUtil.getValidInt(scanner);
+        scanner.nextLine();
+        System.out.print("Enter order type (PURCHASE, SERVICE): ");
+        OrderType type = ValidationUtil.getValidEnumValue(scanner, OrderType.class);
 
         List<Order> existingOrders = orderRepository.findAll();
         boolean isSold = existingOrders.stream()
@@ -36,9 +45,15 @@ public class OrderServiceImpl implements OrderService {
                 "Created order: " + order);
     }
 
-    public void updateOrderStatus(int orderId, OrderStatus status) {
+    public void updateOrderStatus(Scanner scanner) {
+        System.out.print("Enter order ID to update: ");
+        int orderId = ValidationUtil.getValidInt(scanner);
+
         Order order = orderRepository.findById(orderId);
         if (order != null) {
+            scanner.nextLine();
+            System.out.print("Enter new status (PENDING, COMPLETED, CANCELED): ");
+            OrderStatus status = ValidationUtil.getValidEnumValue(scanner, OrderStatus.class);
             order.setStatus(status);
             orderRepository.save(order);
             System.out.println("Order status updated successfully.");
@@ -49,17 +64,20 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
-    public void deleteOrder(int orderId) {
+    public void deleteOrder(Scanner scanner) {
+        System.out.print("Enter order ID to delete: ");
+        int orderId = ValidationUtil.getValidInt(scanner);
+
         if (orderRepository.findById(orderId) != null) {
             orderRepository.delete(orderId);
+            auditService.logAction(AuditService.loggedInUser.getId(), "DELETE_ORDER",
+                    "Deleted order with ID: " + orderId);
         } else {
             System.out.println("Order not found");
-            return;
         }
-
-        auditService.logAction(AuditService.loggedInUser.getId(), "DELETE_ORDER",
-                "Deleted order with ID: " + orderId);
     }
+
+    //TODO creat method to close order(set status canceled)
 
     public void getAllOrders() {
         List<Order> orders = orderRepository.findAll();

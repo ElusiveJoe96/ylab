@@ -1,4 +1,4 @@
-package ru.ylab.input;
+package ru.ylab.controller;
 
 import ru.ylab.audit.AuditService;
 

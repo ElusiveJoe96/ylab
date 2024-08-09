@@ -1,15 +1,15 @@
 package ru.ylab.service;
 
 import ru.ylab.domain.enums.OrderStatus;
-import ru.ylab.domain.enums.OrderType;
 import ru.ylab.domain.model.Order;
 
 import java.util.List;
+import java.util.Scanner;
 
 public interface OrderService {
-    void createOrder(int carId, int userId, OrderType type);
-    void updateOrderStatus(int orderId, OrderStatus status);
-    void deleteOrder(int orderId);
+    void createOrder(int userId, Scanner scanner);
+    void updateOrderStatus(Scanner scanner);
+    void deleteOrder(Scanner scanner);
     void getAllOrders();
     List<Order> getOrdersByStatus(OrderStatus status);
     void getOrdersByUserId(int userId);

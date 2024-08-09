@@ -1,7 +1,6 @@
 package ru.ylab.util;
 
-import ru.ylab.domain.enums.Role;
-
+import java.util.EnumSet;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -33,13 +32,17 @@ public class ValidationUtil {
         return scanner.nextDouble();
     }
 
-    public static Role getValidRole(Scanner scanner) {
+    public static <T extends Enum<T>> T getValidEnumValue(Scanner scanner, Class<T> enumClass) {
         while (true) {
             try {
                 String input = scanner.nextLine().toUpperCase();
-                return Role.valueOf(input);
+                return Enum.valueOf(enumClass, input);
             } catch (IllegalArgumentException e) {
-                System.out.println("Invalid role. Please enter one of the following: ADMIN, MANAGER, CLIENT.");
+                String enumTypes = String.join(", ", EnumSet.allOf(enumClass).stream()
+                        .map(Enum::name)
+                        .toArray(String[]::new));
+                System.out.println("Invalid " + enumClass.getSimpleName()
+                        + ". Please enter one of the following: " + enumTypes + ".");
             }
         }
     }
