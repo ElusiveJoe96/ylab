@@ -53,7 +53,6 @@ public class CarServiceImpl implements CarService {
             Car newCarInfo = getCarDetailsToUpdate(scanner);
             car.setBrand(newCarInfo.getBrand());
             car.setModel(newCarInfo.getModel());
-            //TODO need change year?
             car.setYear(newCarInfo.getYear());
             car.setPrice(newCarInfo.getPrice());
             car.setStatus(newCarInfo.getStatus());
@@ -101,14 +100,14 @@ public class CarServiceImpl implements CarService {
         if(carRepository.findById(carId) != null) {
             carRepository.delete(carId);
             System.out.println("Car deleted successfully.");
-            auditService.logAction(AuditService.loggedInUser.getId(), "DELETE_CAR", "Deleted car with ID: " + carId);
+            auditService.logAction(AuditService.loggedInUser.getId(), "DELETE_CAR",
+                    "Deleted car with ID: " + carId);
         } else {
             System.out.println("Car not found");
-            return;
         }
     }
 
-    public void getAllCars() {
+    public void viewAllCars() {
         List<Car> cars = carRepository.findAll();
         if (cars.isEmpty()) {
             System.out.println("No cars available.");

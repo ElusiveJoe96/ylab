@@ -84,7 +84,8 @@ public class UserServiceImpl implements UserService {
             userRepository.save(existingUser);
 
             System.out.println("User updated successfully.");
-            auditService.logAction(AuditService.loggedInUser.getId(), "UPDATE_USER", "Updated user: " + existingUser);
+            auditService.logAction(AuditService.loggedInUser.getId(), "UPDATE_USER",
+                    "Updated user: " + existingUser);
         },
                 () -> System.out.println("User not found"));
     }
@@ -115,9 +116,8 @@ public class UserServiceImpl implements UserService {
         String password = scanner.nextLine();
 
         System.out.print("Enter new role (ADMIN, MANAGER, CLIENT) (leave empty to keep current): ");
-        String roleInput = scanner.nextLine();
-
         Role role = ValidationUtil.getValidEnumValue(scanner, Role.class);
+
         System.out.print("Enter new contact info (leave empty to keep current): ");
         String contactInfo = scanner.nextLine();
 
@@ -137,7 +137,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    public void getAllUsers() {
+    public void viewAllUsers() {
         List<User> users = userRepository.findAll();
         if (users.isEmpty()) {
             System.out.println("No users available.");

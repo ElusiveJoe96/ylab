@@ -10,7 +10,7 @@ public interface CarService {
     void addCar(Scanner scanner);
     void updateCar(Scanner scanner);
     void deleteCar(Scanner scanner);
-    void getAllCars();
+    void viewAllCars();
     List<Car> getCarsByBrand(String brand);
     List<Car> getCarsByModel(String model);
     List<Car> getCarsByYear(int year);

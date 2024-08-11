@@ -1,27 +1,28 @@
 package ru.ylab.audit;
 
-
 import ru.ylab.domain.model.User;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
-
 public class AuditService {
-    private final List<AuditLog> auditLogs = new ArrayList<>();
     public static User loggedInUser;
-    private int idCounter = 1;
+    private final AuditLogRepository auditLogRepository;
+
+    public AuditService(AuditLogRepository auditLogRepository) {
+        this.auditLogRepository = auditLogRepository;
+    }
 
     public void logAction(int userId, String action, String details) {
-        AuditLog log = new AuditLog(idCounter++, userId, action, LocalDateTime.now(), details);
-        auditLogs.add(log);
+        AuditLog log = new AuditLog(0, userId, action, LocalDateTime.now(), details);
+        auditLogRepository.save(log);
     }
 
     public void viewAuditLogs() {
+        List<AuditLog> auditLogs = auditLogRepository.findAll();
         if (auditLogs.isEmpty()) {
             System.out.println("No audit logs available.");
         } else {
@@ -31,41 +32,22 @@ public class AuditService {
         }
     }
 
-
     public List<AuditLog> filterByUserId(int userId) {
-        List<AuditLog> result = new ArrayList<>();
-        for (AuditLog log : auditLogs) {
-            if (log.getUserId() == userId) {
-                result.add(log);
-            }
-        }
-        return result;
+        return auditLogRepository.findByUserId(userId);
     }
 
     public List<AuditLog> filterByAction(String action) {
-        List<AuditLog> result = new ArrayList<>();
-        for (AuditLog log : auditLogs) {
-            if (log.getAction().equals(action)) {
-                result.add(log);
-            }
-        }
-        return result;
+        return auditLogRepository.findByAction(action);
     }
 
     public List<AuditLog> filterByTimestamp(LocalDateTime from, LocalDateTime to) {
-        List<AuditLog> result = new ArrayList<>();
-        for (AuditLog log : auditLogs) {
-            if ((log.getTimestamp().isEqual(from) || log.getTimestamp().isAfter(from)) &&
-                    (log.getTimestamp().isEqual(to) || log.getTimestamp().isBefore(to))) {
-                result.add(log);
-            }
-        }
-        return result;
+        return auditLogRepository.findByTimestampRange(from, to);
     }
 
     public void exportAuditLogsToFile(String filename) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
-            for (AuditLog log : auditLogs) {
+            List<AuditLog> logs = auditLogRepository.findAll();
+            for (AuditLog log : logs) {
                 writer.write("Log ID: " + log.getId()
                         + ", User ID: " + log.getUserId() + ", Action: " + log.getAction()
                         + ", Date: " + log.getTimestamp() + ", Details: " + log.getDetails());

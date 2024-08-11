@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.Scanner;
 
 public interface UserService {
-
     void registerUser(Scanner scanner);
     void logout();
     void updateUser(Scanner scanner);
@@ -16,7 +15,7 @@ public interface UserService {
     User getUserDetails(Scanner scanner);
     User gerUserDetailsToUpdate(Scanner scanner);
     void deleteUser(int userId);
-    void getAllUsers();
+    void viewAllUsers();
     void updateUserRole(Scanner scanner);
     void viewMyInfo();
     Optional<User> getUserById(int userId);
