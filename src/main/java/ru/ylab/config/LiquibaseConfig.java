@@ -13,15 +13,34 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
+/**
+ * Configuration class for managing Liquibase database migrations.
+ * Sets up and executes Liquibase migrations using the provided {@link DatabaseConfig}.
+ */
 public class LiquibaseConfig {
     private final DatabaseConfig databaseConfig;
     private final Properties properties;
 
+    /**
+     * Constructs a {@link LiquibaseConfig} instance with the specified {@link DatabaseConfig}.
+     * Initializes the properties from the provided {@link DatabaseConfig}.
+     *
+     * @param databaseConfig the {@link DatabaseConfig} instance used to obtain database connection details
+     */
     public LiquibaseConfig(DatabaseConfig databaseConfig) {
         this.databaseConfig = databaseConfig;
         this.properties = databaseConfig.loadProperties();
     }
 
+    /**
+     * Runs database migrations using Liquibase.
+     * - Establishes a connection to the database.
+     * - Creates the schema if it does not exist.
+     * - Sets the default schema name for Liquibase.
+     * - Loads and applies the changes specified in the Liquibase changelog.
+     *
+     * @throws RuntimeException if an error occurs during migration or database setup
+     */
     public void runMigrations() {
         try (Connection connection = databaseConfig.getConnection()) {
             Database database = DatabaseFactory.getInstance()
