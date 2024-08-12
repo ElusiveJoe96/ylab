@@ -26,16 +26,14 @@ public class LiquibaseConfig {
         try (Connection connection = databaseConfig.getConnection()) {
             Database database = DatabaseFactory.getInstance()
                     .findCorrectDatabaseImplementation(new JdbcConnection(connection));
-
-            String changeLogTableSchema = properties.getProperty("liquibase.change-log-table-schema",
-                    "public");
-
-            database.setDefaultSchemaName(changeLogTableSchema);
-
             try (Statement stmt = connection.createStatement()) {
                 String createSchemaSQL = "CREATE SCHEMA IF NOT EXISTS car_shop_log_schema";
                 stmt.execute(createSchemaSQL);
             }
+            String changeLogTableSchema = properties.getProperty("liquibase.change-log-table-schema",
+                    "public");
+
+            database.setDefaultSchemaName(changeLogTableSchema);
 
             String changeLog = properties.getProperty("liquibase.change-log",
                     "db/changelog/changelog.xml");

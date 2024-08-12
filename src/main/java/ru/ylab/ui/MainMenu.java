@@ -42,11 +42,11 @@ public class MainMenu {
         guestMenu = new GuestMenuCommand(userService);
     }
 
-    public void executeMenu(Role role, int choice, Scanner scanner) {
+    public void executeMenu(int choice, Scanner scanner) {
         Optional<User> currentUser = Optional.ofNullable(AuditService.loggedInUser);
         int userId = currentUser.map(User::getId).orElse(-1);
 
-        MenuCommand command = switch (role) {
+        MenuCommand command = switch (getCurrentUserRole()) {
             case ADMIN -> adminMenu;
             case MANAGER -> managerMenu;
             case CLIENT -> clientMenu;
@@ -55,8 +55,8 @@ public class MainMenu {
         command.execute(choice, scanner, userId);
     }
 
-    public void showMenu(Role role) {
-        MenuCommand command = switch (role) {
+    public void showMenu() {
+        MenuCommand command = switch (getCurrentUserRole()) {
             case ADMIN -> adminMenu;
             case MANAGER -> managerMenu;
             case CLIENT -> clientMenu;
