@@ -1,6 +1,7 @@
 package ru.ylab.service;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -38,6 +39,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("Register user with invalid email and ensure no user is saved")
     public void testRegisterUser_InvalidEmail() {
         Scanner scanner = new Scanner("John Doe\ninvalid-email\npassword123\n123-456-7890");
 
@@ -47,6 +49,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("Login with correct credentials and ensure user is authenticated and logged in")
     public void testLogin_Successful() {
         Scanner scanner = new Scanner("john.doe@example.com\npassword123");
         User user = new User(1, "John Doe", "john.doe@example.com",
@@ -63,6 +66,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("Login with incorrect credentials and ensure login fails")
     public void testLogin_Failure() {
         Scanner scanner = new Scanner("wrong.email@example.com\nwrongpassword");
         when(userRepository.findByEmail("wrong.email@example.com")).thenReturn(Optional.empty());
@@ -73,6 +77,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("Logout when user is logged in and ensure user is logged out")
     public void testLogout_Successful() {
         User user = new User(1, "John Doe", "john.doe@example.com",
                 "password123", Role.CLIENT, "123-456-7890");
@@ -85,6 +90,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("Logout when no user is logged in and ensure no actions are performed")
     public void testLogout_NoUserLoggedIn() {
         AuditService.loggedInUser = null;
 
@@ -94,6 +100,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("Delete user when user exists and ensure user is deleted")
     public void testDeleteUser() {
         int userId = 1;
         User user = new User(userId, "John Doe", "john.doe@example.com",
@@ -107,6 +114,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("Delete user when user is not found and ensure no actions are performed")
     public void testDeleteUser_NotFound() {
         int userId = 1;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
@@ -118,6 +126,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("View all users and ensure users are retrieved")
     public void testViewAllUsers() {
         List<User> users = Arrays.asList(
                 new User(1, "John Doe", "john.doe@example.com",
@@ -131,6 +140,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("Update user role and ensure role is updated and saved")
     public void testUpdateUserRole() {
         Scanner scanner = new Scanner("1\nADMIN");
         User user = new User(1, "John Doe", "john.doe@example.com",
@@ -145,6 +155,7 @@ public class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("View information of the currently logged in user")
     public void testViewMyInfo() {
         AuditService.loggedInUser = new User(1, "John Doe",
                 "john.doe@example.com", "password123", Role.CLIENT, "123-456-7890");

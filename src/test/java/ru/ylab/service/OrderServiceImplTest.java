@@ -1,6 +1,7 @@
 package ru.ylab.service;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.ylab.audit.AuditService;
 import ru.ylab.domain.enums.OrderStatus;
@@ -31,6 +32,7 @@ public class OrderServiceImplTest {
     }
 
     @Test
+    @DisplayName("Create order when car is already sold and ensure no actions are performed")
     public void testCreateOrder_CarAlreadySold() {
         Scanner scanner = new Scanner("1\nPURCHASE\n");
         when(orderRepository.findAll()).thenReturn(List.of(
@@ -44,6 +46,7 @@ public class OrderServiceImplTest {
     }
 
     @Test
+    @DisplayName("Update order status when order is not found and ensure no actions are performed")
     public void testUpdateOrderStatus_OrderNotFound() {
         Scanner scanner = new Scanner("1\nCOMPLETED\n");
         when(orderRepository.findById(1)).thenReturn(null);
@@ -55,6 +58,7 @@ public class OrderServiceImplTest {
     }
 
     @Test
+    @DisplayName("Delete order when order is not found and ensure no actions are performed")
     public void testDeleteOrder_OrderNotFound() {
         Scanner scanner = new Scanner("1\n");
         when(orderRepository.findById(1)).thenReturn(null);
@@ -67,6 +71,7 @@ public class OrderServiceImplTest {
 
 
     @Test
+    @DisplayName("Get all orders when there are no orders in the repository")
     public void testGetAllOrders_NoOrders() {
         when(orderRepository.findAll()).thenReturn(List.of());
 
@@ -76,6 +81,7 @@ public class OrderServiceImplTest {
     }
 
     @Test
+    @DisplayName("Get all orders when there are orders in the repository")
     public void testGetAllOrders_WithOrders() {
         when(orderRepository.findAll()).thenReturn(List.of(
                 new Order(1, 1, 1, LocalDateTime.now(), OrderStatus.PENDING, OrderType.PURCHASE),
@@ -88,6 +94,7 @@ public class OrderServiceImplTest {
     }
 
     @Test
+    @DisplayName("Get orders by status and verify the results")
     public void testGetOrdersByStatus() {
         when(orderRepository.findByStatus(OrderStatus.PENDING)).thenReturn(List.of(
                 new Order(1, 1, 1, LocalDateTime.now(), OrderStatus.PENDING, OrderType.PURCHASE)
@@ -100,6 +107,7 @@ public class OrderServiceImplTest {
     }
 
     @Test
+    @DisplayName("Get orders by user ID when no orders exist for the user")
     public void testGetOrdersByUserId_NoOrders() {
         when(orderRepository.findByClientId(1)).thenReturn(List.of());
 
@@ -109,6 +117,7 @@ public class OrderServiceImplTest {
     }
 
     @Test
+    @DisplayName("Get orders by user ID when orders exist for the user")
     public void testGetOrdersByUserId_WithOrders() {
         when(orderRepository.findByClientId(1)).thenReturn(List.of(
                 new Order(1, 1, 1, LocalDateTime.now(), OrderStatus.PENDING, OrderType.PURCHASE)
@@ -120,6 +129,7 @@ public class OrderServiceImplTest {
     }
 
     @Test
+    @DisplayName("Get order by ID and verify the result")
     public void testGetOrderById() {
         Order order = new Order(1, 1, 1, LocalDateTime.now(), OrderStatus.PENDING, OrderType.PURCHASE);
         when(orderRepository.findById(1)).thenReturn(order);

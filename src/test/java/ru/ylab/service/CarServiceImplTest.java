@@ -1,6 +1,7 @@
 package ru.ylab.service;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -15,7 +16,6 @@ import ru.ylab.service.implementation.CarServiceImpl;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -30,14 +30,14 @@ public class CarServiceImplTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        User user = new User(1, "John Doe", "john.doe@example.com",
+        AuditService.loggedInUser = new User(1, "John Doe", "john.doe@example.com",
                 "password123", Role.CLIENT, "123-456-7890");
-        AuditService.loggedInUser = user;
     }
 
 
 
     @Test
+    @DisplayName("View all cars and verify the repository method is called")
     public void testViewAllCars() {
         List<Car> cars = Arrays.asList(
                 new Car(1, "Toyota", "Camry", 2022,
@@ -53,6 +53,7 @@ public class CarServiceImplTest {
     }
 
     @Test
+    @DisplayName("Get cars by brand and verify the results")
     public void testGetCarsByBrand() {
         List<Car> cars = List.of(
                 new Car(1, "Toyota", "Camry", 2022,
@@ -67,6 +68,7 @@ public class CarServiceImplTest {
     }
 
     @Test
+    @DisplayName("Get cars by model and verify the results")
     public void testGetCarsByModel() {
         List<Car> cars = List.of(
                 new Car(1, "Toyota", "Camry", 2022,
@@ -81,6 +83,7 @@ public class CarServiceImplTest {
     }
 
     @Test
+    @DisplayName("Get cars by year and verify the results")
     public void testGetCarsByYear() {
         List<Car> cars = List.of(
                 new Car(1, "Toyota", "Camry", 2022,
@@ -95,6 +98,7 @@ public class CarServiceImplTest {
     }
 
     @Test
+    @DisplayName("Get cars by status and verify the results")
     public void testGetCarsByStatus() {
         List<Car> cars = List.of(
                 new Car(1, "Toyota", "Camry", 2022,
@@ -109,6 +113,7 @@ public class CarServiceImplTest {
     }
 
     @Test
+    @DisplayName("Get car by ID and verify the result")
     public void testGetCarById() {
         Car car = new Car(1, "Toyota", "Camry", 2022,
                 30000, CarStatus.AVAILABLE, "A reliable car");

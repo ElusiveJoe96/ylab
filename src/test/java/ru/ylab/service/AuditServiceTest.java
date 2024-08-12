@@ -1,6 +1,7 @@
 package ru.ylab.service;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -33,6 +34,7 @@ public class AuditServiceTest {
     }
 
     @Test
+    @DisplayName("Log an action and verify it is saved correctly")
     public void testLogAction() {
         int userId = 1;
         String action = "TEST_ACTION";
@@ -51,6 +53,7 @@ public class AuditServiceTest {
     }
 
     @Test
+    @DisplayName("View all audit logs and verify the method is called")
     public void testViewAuditLogs() {
         List<AuditLog> logs = Arrays.asList(
                 new AuditLog(1, 1, "LOGIN", LocalDateTime.now(), "User logged in"),
@@ -64,6 +67,7 @@ public class AuditServiceTest {
     }
 
     @Test
+    @DisplayName("Filter audit logs by user ID and verify the results")
     public void testFilterByUserId() {
         List<AuditLog> logs = Arrays.asList(
                 new AuditLog(1, 1, "LOGIN", LocalDateTime.now(), "User logged in"),
@@ -78,6 +82,7 @@ public class AuditServiceTest {
     }
 
     @Test
+    @DisplayName("Filter audit logs by action and verify the results")
     public void testFilterByAction() {
         List<AuditLog> logs = Arrays.asList(
                 new AuditLog(1, 1, "LOGIN", LocalDateTime.now(), "User logged in"),
@@ -92,6 +97,7 @@ public class AuditServiceTest {
     }
 
     @Test
+    @DisplayName("Filter audit logs by time range and verify the results")
     public void testFilterByTimestamp() {
         LocalDateTime from = LocalDateTime.now().minusDays(1);
         LocalDateTime to = LocalDateTime.now();
@@ -108,6 +114,7 @@ public class AuditServiceTest {
     }
 
     @Test
+    @DisplayName("Export audit logs to a file and verify the file content")
     public void testExportAuditLogsToFile() throws IOException {
         List<AuditLog> logs = Arrays.asList(
                 new AuditLog(1, 1, "LOGIN", LocalDateTime.now(), "User logged in")
