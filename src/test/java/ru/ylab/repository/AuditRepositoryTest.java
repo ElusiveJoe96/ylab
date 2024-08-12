@@ -67,6 +67,7 @@ public class AuditRepositoryTest {
     }
 
     @Test
+    @DisplayName("Verify saving log to the database")
     public void testSave() {
         AuditLog auditLog = new AuditLog();
         auditLog.setUserId(1);
@@ -89,6 +90,7 @@ public class AuditRepositoryTest {
     }
 
     @Test
+    @DisplayName("Verify retrieving all logs from the database")
     public void testFindAll() {
         AuditLog log1 = new AuditLog();
         log1.setUserId(1);
@@ -110,6 +112,7 @@ public class AuditRepositoryTest {
     }
 
     @Test
+    @DisplayName("Verify retrieving logs by userId")
     public void testFindByUserId() {
         AuditLog log = new AuditLog();
         log.setUserId(1);
@@ -124,6 +127,7 @@ public class AuditRepositoryTest {
     }
 
     @Test
+    @DisplayName("Verify retrieving logs by action")
     public void testFindByAction() {
         AuditLog log = new AuditLog();
         log.setUserId(1);
@@ -138,6 +142,7 @@ public class AuditRepositoryTest {
     }
 
     @Test
+    @DisplayName("Verify retrieving logs by time range")
     public void testFindByTimestampRange() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime later = now.plusHours(1);

@@ -69,6 +69,7 @@ public class OrderRepositoryTest {
     }
 
     @Test
+    @DisplayName("Save a new order and verify it is saved correctly")
     public void testSave_InsertNewOrder() {
         Order order = new Order();
         order.setUserId(1);
@@ -88,6 +89,7 @@ public class OrderRepositoryTest {
     }
 
     @Test
+    @DisplayName("Update an existing order and verify the update is correct")
     public void testSave_UpdateExistingOrder() {
         Order order = new Order();
         order.setUserId(1);
@@ -106,6 +108,7 @@ public class OrderRepositoryTest {
     }
 
     @Test
+    @DisplayName("Delete an order and verify it is removed from the database")
     public void testDelete() {
         Order order = new Order();
         order.setUserId(1);
@@ -122,6 +125,7 @@ public class OrderRepositoryTest {
     }
 
     @Test
+    @DisplayName("Find an order by ID and verify its details")
     public void testFindById() {
         Order order = new Order();
         order.setUserId(1);
@@ -138,6 +142,7 @@ public class OrderRepositoryTest {
     }
 
     @Test
+    @DisplayName("Retrieve all orders from the database")
     public void testFindAll() {
         Order order1 = new Order();
         order1.setUserId(1);
@@ -161,6 +166,7 @@ public class OrderRepositoryTest {
     }
 
     @Test
+    @DisplayName("Find orders by status and verify the result")
     public void testFindByStatus() {
         Order order = new Order();
         order.setUserId(1);
@@ -178,6 +184,7 @@ public class OrderRepositoryTest {
 
 
     @Test
+    @DisplayName("Find orders by status and verify the result")
     public void testFindByClientId() {
         Order order = new Order();
         order.setUserId(1);
@@ -193,6 +200,7 @@ public class OrderRepositoryTest {
     }
 
     @Test
+    @DisplayName("Find orders by car ID and verify the result")
     public void testFindByCarId() {
         Order order = new Order();
         order.setUserId(1);
@@ -208,6 +216,7 @@ public class OrderRepositoryTest {
     }
 
     @Test
+    @DisplayName("Find orders by type and verify the result")
     public void testFindByType() {
         Order order = new Order();
         order.setUserId(1);

@@ -68,6 +68,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Save a new user and verify it is saved correctly")
     public void testSave_InsertNewUser() {
         User user = new User();
         user.setName("John Doe");
@@ -87,6 +88,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Update an existing user and verify the update is correct")
     public void testSave_UpdateExistingUser() {
         User user = new User();
         user.setName("John Doe");
@@ -105,6 +107,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Delete a user and verify it is removed from the database")
     public void testDelete() {
         User user = new User();
         user.setName("John Doe");
@@ -121,6 +124,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Find a user by ID and verify their details")
     public void testFindById() {
         User user = new User();
         user.setName("John Doe");
@@ -136,6 +140,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Find a user by email and verify their details")
     public void testFindByEmail() {
         User user = new User();
         user.setName("John Doe");
@@ -151,6 +156,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Retrieve all users from the database")
     public void testFindAll() {
         User user1 = new User();
         user1.setName("John Doe");
@@ -174,6 +180,7 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @DisplayName("Find users by role and verify the result")
     public void testFindByRole() {
         User user = new User();
         user.setName("John Doe");

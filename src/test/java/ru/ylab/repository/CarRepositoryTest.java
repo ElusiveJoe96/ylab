@@ -1,6 +1,7 @@
 package ru.ylab.repository;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -55,6 +56,7 @@ public class CarRepositoryTest {
     }
 
     @Test
+    @DisplayName("Save a car and find it by ID")
     public void testSaveAndFindById() {
         Car car = new Car();
         car.setBrand("Toyota");
@@ -73,6 +75,7 @@ public class CarRepositoryTest {
     }
 
     @Test
+    @DisplayName("Update a car details")
     public void testUpdate() {
         Car car = new Car();
         car.setBrand("Honda");
@@ -92,6 +95,7 @@ public class CarRepositoryTest {
     }
 
     @Test
+    @DisplayName("Delete a car by ID")
     public void testDelete() {
         Car car = new Car();
         car.setBrand("Ford");
@@ -110,6 +114,7 @@ public class CarRepositoryTest {
     }
 
     @Test
+    @DisplayName("Retrieve all cars from the database")
     public void testFindAll() {
         Car car1 = new Car();
         car1.setBrand("Tesla");
