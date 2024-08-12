@@ -16,13 +16,14 @@ public class ManagerMenuCommand implements MenuCommand {
     @Override
     public void execute(int choice, Scanner scanner, int userId) {
         switch (choice) {
-            case 1 -> carService.addCar(scanner);
-            case 2 -> userService.viewAllUsers();
+            case 1 -> userService.viewAllUsers();
+            case 2 -> carService.addCar(scanner);
             case 3 -> carService.updateCar(scanner);
             case 4 -> carService.deleteCar(scanner);
-            case 5 -> orderService.createOrder(userId, scanner);
-            case 6 -> orderService.updateOrderStatus(scanner);
-            case 7 -> userService.logout();
+            case 5 -> orderService.getAllOrders();
+            case 6 -> orderService.createOrder(scanner);
+            case 7 -> orderService.updateOrderStatus(scanner);
+            case 8 -> userService.logout();
             case 0 -> exitApplication();
             default -> System.out.println("Invalid option. Please try again.");
         }
@@ -31,13 +32,14 @@ public class ManagerMenuCommand implements MenuCommand {
     @Override
     public void showMenu() {
         System.out.println("""
-                1. Add car
-                2. View users
+                1. View users
+                2. Add car
                 3. Update car
                 4. Delete car
-                5. Create order
-                6. Update order status
-                7. Logout
+                5. View all orders
+                6. Create order
+                7. Update order status
+                8. Logout
                 0. Exit
                 """);
     }

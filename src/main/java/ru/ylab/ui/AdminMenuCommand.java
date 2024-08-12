@@ -25,10 +25,11 @@ public class AdminMenuCommand implements MenuCommand {
             case 5 -> carService.addCar(scanner);
             case 6 -> carService.updateCar(scanner);
             case 7 -> carService.deleteCar(scanner);
-            case 8 -> orderService.createOrder(userId, scanner);
-            case 9 -> orderService.updateOrderStatus(scanner);
-            case 10 -> auditService.viewAuditLogs();
-            case 11 -> userService.logout();
+            case 8 -> orderService.getAllOrders();
+            case 9 -> orderService.createOrder(scanner);
+            case 10 -> orderService.updateOrderStatus(scanner);
+            case 11 -> auditService.viewAuditLogs();
+            case 12 -> userService.logout();
             case 0 -> exitApplication();
             default -> System.out.println("Invalid option. Please try again.");
         }
@@ -44,10 +45,11 @@ public class AdminMenuCommand implements MenuCommand {
                 5. Add car
                 6. Update car
                 7. Delete car
-                8. Create order
-                9. Update order status
-                10. Show logs
-                11. Logout
+                8. View all orders
+                9. Create order
+                10. Update order status
+                11. Show logs
+                12. Logout
                 0. Exit
                 """);
     }

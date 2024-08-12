@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public interface OrderService {
-    void createOrder(int userId, Scanner scanner);
+    void createOrder(Scanner scanner);
     void updateOrderStatus(Scanner scanner);
     void deleteOrder(Scanner scanner);
     void getAllOrders();

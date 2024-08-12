@@ -1,6 +1,7 @@
 package ru.ylab;
 
 import ru.ylab.ui.MainMenu;
+import ru.ylab.util.ValidationUtil;
 
 import java.util.Scanner;
 
@@ -12,7 +13,7 @@ public class App {
         while (true) {
             menu.showMenu();
             System.out.print("Select an option: ");
-            int choice = scanner.nextInt();
+            int choice = ValidationUtil.getValidInt(scanner);
             scanner.nextLine();
             menu.executeMenu(choice, scanner);
         }

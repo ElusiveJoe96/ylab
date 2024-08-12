@@ -22,12 +22,17 @@ public class OrderServiceImpl implements OrderService {
         this.auditService = auditService;
     }
 
-    public void createOrder(int userId, Scanner scanner) {
+    public void createOrder(Scanner scanner) {
         System.out.print("Enter car ID: ");
         int carId = ValidationUtil.getValidInt(scanner);
         scanner.nextLine();
+        System.out.print("Enter user ID: ");
+        int userId = ValidationUtil.getValidInt(scanner);
+        scanner.nextLine();
         System.out.print("Enter order type (PURCHASE, SERVICE): ");
         OrderType type = ValidationUtil.getValidEnumValue(scanner, OrderType.class);
+
+
 
         List<Order> existingOrders = orderRepository.findAll();
         boolean isSold = existingOrders.stream()

@@ -37,7 +37,7 @@ public class OrderServiceImplTest {
                 new Order(1, 1, 1, LocalDateTime.now(), OrderStatus.COMPLETED, OrderType.PURCHASE)
         ));
 
-        orderService.createOrder(1, scanner);
+        orderService.createOrder(scanner);
 
         verify(orderRepository, never()).save(any(Order.class));
         verify(auditService, never()).logAction(anyInt(), anyString(), anyString());
