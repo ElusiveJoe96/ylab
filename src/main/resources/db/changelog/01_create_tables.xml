@@ -12,7 +12,7 @@
         </sql>
     </changeSet>
 
-    <changeSet id="2" author="creator">
+    <changeSet id="6" author="creator">
         <createSequence
                 startValue="1"
                 incrementBy="1"
@@ -38,7 +38,7 @@
                 schemaName="car_shop_log_schema"/>
     </changeSet>
 
-    <changeSet id="3" author="creator">
+    <changeSet id="2" author="creator">
         <createTable tableName="logs" schemaName="car_shop_log_schema">
             <column name="id" type="int" defaultValueComputed="nextval('car_shop_log_schema.logs_id_seq')">
                 <constraints primaryKey="true" nullable="false"/>
@@ -56,7 +56,9 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+    </changeSet>
 
+    <changeSet id="3" author="creator">
         <createTable tableName="users" schemaName="car_shop_schema">
             <column name="id" type="int" defaultValueComputed="nextval('car_shop_schema.users_id_seq')">
                 <constraints primaryKey="true" nullable="false"/>
@@ -77,7 +79,9 @@
                 <constraints nullable="false" unique="true"/>
             </column>
         </createTable>
+    </changeSet>
 
+    <changeSet id="4" author="creator">
         <createTable tableName="cars" schemaName="car_shop_schema">
             <column name="id" type="int" defaultValueComputed="nextval('car_shop_schema.cars_id_seq')">
                 <constraints primaryKey="true" nullable="false"/>
@@ -101,7 +105,9 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+    </changeSet>
 
+    <changeSet id="5" author="creator">
         <createTable tableName="orders" schemaName="car_shop_schema">
             <column name="id" type="int" defaultValueComputed="nextval('car_shop_schema.orders_id_seq')">
                 <constraints primaryKey="true" nullable="false"/>
@@ -124,7 +130,9 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="4" author="creator">
+
+
+    <changeSet id="7" author="creator">
         <addForeignKeyConstraint baseTableName="orders"
                                  baseColumnNames="car_id"
                                  referencedTableName="cars"

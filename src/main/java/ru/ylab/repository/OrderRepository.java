@@ -13,6 +13,19 @@ import java.util.List;
 public class OrderRepository {
     private final DatabaseConfig databaseConfig;
 
+    private static final String INSERT_ORDER_QUERY = "INSERT INTO car_shop_schema.orders " +
+            "(user_id, car_id, order_date, status, type) " +
+            "VALUES (?, ?, ?, ?, ?)";
+    private static final String UPDATE_ORDER_QUERY = "UPDATE car_shop_schema.orders " +
+            "SET user_id = ?, car_id = ?, order_date = ?, status = ?, type = ? WHERE id = ?";
+    private static final String DELETE_ORDER_QUERY = "DELETE FROM car_shop_schema.orders WHERE id = ?";
+    private static final String FIND_BY_ID_QUERY = "SELECT id, user_id, car_id, order_date, status, type " +
+            "FROM car_shop_schema.orders WHERE id = ?";
+    private static final String FIND_ALL_QUERY = "SELECT id, user_id, car_id, order_date, status, type " +
+            "FROM car_shop_schema.orders";
+    private static final String FIND_BY_FIELD_QUERY = "SELECT id, user_id, car_id, order_date, status, type " +
+            "FROM car_shop_schema.orders WHERE %s = ?";
+
     public OrderRepository(DatabaseConfig databaseConfig) {
         this.databaseConfig = databaseConfig;
     }
@@ -26,11 +39,8 @@ public class OrderRepository {
     }
 
     private void insert(Order order) {
-        String query = "INSERT INTO car_shop_schema.orders (user_id, car_id, order_date, status, type) " +
-                "VALUES (?, ?, ?, ?, ?)";
-
         try (Connection connection = databaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement statement = connection.prepareStatement(INSERT_ORDER_QUERY, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setInt(1, order.getUserId());
             statement.setInt(2, order.getCarId());
@@ -38,9 +48,9 @@ public class OrderRepository {
             statement.setString(4, order.getStatus().name());
             statement.setString(5, order.getType().name());
 
-            int rowsAffected = statement.executeUpdate();
+            int affectedRows = statement.executeUpdate();
 
-            if (rowsAffected > 0) {
+            if (affectedRows > 0) {
                 try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         order.setId(generatedKeys.getInt(1));
@@ -48,16 +58,13 @@ public class OrderRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error inserting order", e);
         }
     }
 
     private void update(Order order) {
-        String query = "UPDATE car_shop_schema.orders " +
-                "SET user_id = ?, car_id = ?, order_date = ?, status = ?, type = ? WHERE id = ?";
-
         try (Connection connection = databaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+             PreparedStatement statement = connection.prepareStatement(UPDATE_ORDER_QUERY)) {
 
             statement.setInt(1, order.getUserId());
             statement.setInt(2, order.getCarId());
@@ -68,68 +75,58 @@ public class OrderRepository {
 
             statement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error updating order", e);
         }
     }
 
     public void delete(int orderId) {
-        String query = "DELETE FROM car_shop_schema.orders WHERE id = ?";
-
         try (Connection connection = databaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+             PreparedStatement statement = connection.prepareStatement(DELETE_ORDER_QUERY)) {
 
             statement.setInt(1, orderId);
             statement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error deleting order", e);
         }
     }
 
     public Order findById(int orderId) {
-        String query = "SELECT id, user_id, car_id, order_date, status, type " +
-                "FROM car_shop_schema.orders WHERE id = ?";
-
         try (Connection connection = databaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+             PreparedStatement statement = connection.prepareStatement(FIND_BY_ID_QUERY)) {
 
             statement.setInt(1, orderId);
-
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
                     return mapRowToOrder(resultSet);
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error finding order by id", e);
         }
         return null;
     }
 
     public List<Order> findAll() {
-        String query = "SELECT id, user_id, car_id, order_date, status, type " +
-                "FROM car_shop_schema.orders";
         List<Order> orders = new ArrayList<>();
 
         try (Connection connection = databaseConfig.getConnection();
              Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
+             ResultSet resultSet = statement.executeQuery(FIND_ALL_QUERY)) {
 
             while (resultSet.next()) {
                 orders.add(mapRowToOrder(resultSet));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error finding all orders", e);
         }
         return orders;
     }
 
     private List<Order> findByField(String fieldName, Object value) {
-        String query = "SELECT id, user_id, car_id, order_date, status, type " +
-                "FROM car_shop_schema.orders WHERE " + fieldName + " = ?";
         List<Order> orders = new ArrayList<>();
 
         try (Connection connection = databaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+             PreparedStatement statement = connection.prepareStatement(String.format(FIND_BY_FIELD_QUERY, fieldName))) {
 
             if (value instanceof String) {
                 statement.setString(1, (String) value);
@@ -151,7 +148,7 @@ public class OrderRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error finding orders by field", e);
         }
         return orders;
     }

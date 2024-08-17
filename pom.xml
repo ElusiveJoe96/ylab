@@ -15,6 +15,7 @@
     <java.version>17</java.version>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.plugin>3.8.1</maven.compiler.plugin>
 
     <liquibase.version>4.23.1</liquibase.version>
     <postgresql.version>42.7.3</postgresql.version>
@@ -25,9 +26,18 @@
     <testcontainers.version>1.18.0</testcontainers.version>
     <testcontainers.version.junit.version>1.19.4</testcontainers.version.junit.version>
     <junit.jupiter.version>5.10.2</junit.jupiter.version>
+    <map.struct.version>1.5.5.Final</map.struct.version>
+
   </properties>
 
   <dependencies>
+
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <version>${map.struct.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
@@ -116,4 +126,25 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+<!--  <build>-->
+<!--    <plugins>-->
+<!--      <plugin>-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-compiler-plugin</artifactId>-->
+<!--        <version>${maven.compiler.plugin}</version>-->
+<!--        <configuration>-->
+<!--          <source>${maven.compiler.source}</source>-->
+<!--          <target>${maven.compiler.target}</target>-->
+<!--          <annotationProcessorPaths>-->
+<!--            <path>-->
+<!--              <groupId>org.mapstruct</groupId>-->
+<!--              <artifactId>mapstruct-processor</artifactId>-->
+<!--              <version>${map.struct.version}</version>-->
+<!--            </path>-->
+<!--          </annotationProcessorPaths>-->
+<!--        </configuration>-->
+<!--      </plugin>-->
+<!--    </plugins>-->
+<!--  </build>-->
 </project>

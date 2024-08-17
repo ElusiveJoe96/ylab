@@ -11,6 +11,19 @@ import java.util.List;
 public class CarRepository {
     private final DatabaseConfig databaseConfig;
 
+    private static final String INSERT_CAR_QUERY = "INSERT INTO car_shop_schema.cars " +
+            "(brand, model, year, price, status, description) " +
+            "VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String UPDATE_CAR_QUERY = "UPDATE car_shop_schema.cars " +
+            "SET brand = ?, model = ?, year = ?, price = ?, status = ?, description = ? WHERE id = ?";
+    private static final String DELETE_CAR_QUERY = "DELETE FROM car_shop_schema.cars WHERE id = ?";
+    private static final String FIND_BY_ID_QUERY = "SELECT id, brand, model, year, price, status, description " +
+            "FROM car_shop_schema.cars WHERE id = ?";
+    private static final String FIND_ALL_QUERY = "SELECT id, brand, model, year, price, status, description " +
+            "FROM car_shop_schema.cars";
+    private static final String FIND_BY_FIELD_QUERY = "SELECT id, brand, model, year, price, status, description " +
+            "FROM car_shop_schema.cars WHERE %s = ?";
+
     public CarRepository(DatabaseConfig databaseConfig) {
         this.databaseConfig = databaseConfig;
     }
@@ -24,11 +37,8 @@ public class CarRepository {
     }
 
     private void insert(Car car) {
-        String query = "INSERT INTO car_shop_schema.cars (brand, model, year, price, status, description) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
-
         try (Connection connection = databaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement statement = connection.prepareStatement(INSERT_CAR_QUERY, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setString(1, car.getBrand());
             statement.setString(2, car.getModel());
@@ -37,9 +47,9 @@ public class CarRepository {
             statement.setString(5, car.getStatus().name());
             statement.setString(6, car.getDescription());
 
-            int rowsAffected = statement.executeUpdate();
+            int affectedRows = statement.executeUpdate();
 
-            if (rowsAffected > 0) {
+            if (affectedRows > 0) {
                 try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         car.setId(generatedKeys.getInt(1));
@@ -47,17 +57,13 @@ public class CarRepository {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error inserting car: " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Error inserting car", e);
         }
     }
 
     private void update(Car car) {
-        String query = "UPDATE car_shop_schema.cars " +
-                "SET brand = ?, model = ?, year = ?, price = ?, status = ?, description = ? WHERE id = ?";
-
         try (Connection connection = databaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+             PreparedStatement statement = connection.prepareStatement(UPDATE_CAR_QUERY)) {
 
             statement.setString(1, car.getBrand());
             statement.setString(2, car.getModel());
@@ -67,84 +73,63 @@ public class CarRepository {
             statement.setString(6, car.getDescription());
             statement.setInt(7, car.getId());
 
-            int rowsAffected = statement.executeUpdate();
-
-            if (rowsAffected == 0) {
-                System.out.println("No car found with ID: " + car.getId());
-            }
+            statement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Error updating car: " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Error updating car", e);
         }
     }
 
     public void delete(int carId) {
-        String query = "DELETE FROM car_shop_schema.cars WHERE id = ?";
-
         try (Connection connection = databaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+             PreparedStatement statement = connection.prepareStatement(DELETE_CAR_QUERY)) {
 
             statement.setInt(1, carId);
-            int rowsAffected = statement.executeUpdate();
-
-            if (rowsAffected == 0) {
-                System.out.println("No car found with ID: " + carId);
-            }
+            statement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Error deleting car: " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Error deleting car", e);
         }
     }
 
     public Car findById(int carId) {
-        String query = "SELECT id, brand, model, year, price, status, description " +
-                "FROM car_shop_schema.cars WHERE id = ?";
-
         try (Connection connection = databaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+             PreparedStatement statement = connection.prepareStatement(FIND_BY_ID_QUERY)) {
 
             statement.setInt(1, carId);
-
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
                     return mapRowToCar(resultSet);
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error finding car by ID: " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Error finding car by ID", e);
         }
         return null;
     }
 
     public List<Car> findAll() {
-        String query = "SELECT id, brand, model, year, price, status, description " +
-                "FROM car_shop_schema.cars";
         List<Car> cars = new ArrayList<>();
 
         try (Connection connection = databaseConfig.getConnection();
              Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
+             ResultSet resultSet = statement.executeQuery(FIND_ALL_QUERY)) {
 
             while (resultSet.next()) {
                 cars.add(mapRowToCar(resultSet));
             }
         } catch (SQLException e) {
-            System.err.println("Error finding all cars: " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Error finding all cars", e);
         }
         return cars;
     }
 
     private List<Car> findByField(String fieldName, Object value) {
-        String query = "SELECT id, brand, model, year, price, status, description " +
-                "FROM car_shop_schema.cars WHERE " + fieldName + " = ?";
-
         List<Car> cars = new ArrayList<>();
 
-        try (Connection connection = databaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
 
+
+        try (Connection connection = databaseConfig.getConnection();
+             PreparedStatement statement = connection.prepareStatement(String.format(FIND_BY_FIELD_QUERY, fieldName))) {
+            //TODO А почему не сделать switch с fieldName?
             if (value instanceof String) {
                 statement.setString(1, (String) value);
             } else if (value instanceof Integer) {
@@ -163,8 +148,7 @@ public class CarRepository {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error finding cars by field: " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Error finding cars by field", e);
         }
 
         return cars;

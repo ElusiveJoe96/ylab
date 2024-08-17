@@ -29,7 +29,7 @@ public class LiquibaseConfig {
      */
     public LiquibaseConfig(DatabaseConfig databaseConfig) {
         this.databaseConfig = databaseConfig;
-        this.properties = databaseConfig.loadProperties();
+        this.properties = databaseConfig.loadProperties("liquibase.properties");
     }
 
     /**
@@ -42,13 +42,13 @@ public class LiquibaseConfig {
      * @throws RuntimeException if an error occurs during migration or database setup
      */
     public void runMigrations() {
-        try (Connection connection = databaseConfig.getConnection()) {
-            Database database = DatabaseFactory.getInstance()
-                    .findCorrectDatabaseImplementation(new JdbcConnection(connection));
-            try (Statement stmt = connection.createStatement()) {
-                String createSchemaSQL = "CREATE SCHEMA IF NOT EXISTS car_shop_log_schema";
-                stmt.execute(createSchemaSQL);
-            }
+        try (Connection connection = databaseConfig.getConnection();
+             Database database = DatabaseFactory.getInstance()
+                     .findCorrectDatabaseImplementation(new JdbcConnection(connection));
+             Statement stmt = connection.createStatement()) {
+            String createSchemaSQL = "CREATE SCHEMA IF NOT EXISTS car_shop_log_schema";
+            stmt.execute(createSchemaSQL);
+
             String changeLogTableSchema = properties.getProperty("liquibase.change-log-table-schema",
                     "public");
 

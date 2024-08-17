@@ -17,7 +17,11 @@ public class AuditService {
     }
 
     public void logAction(int userId, String action, String details) {
-        AuditLog log = new AuditLog(0, userId, action, LocalDateTime.now(), details);
+        AuditLog log = AuditLog.builder()
+                .userId(userId)
+                .action(action)
+                .timestamp(LocalDateTime.now())
+                .details(details).build();
         auditLogRepository.save(log);
     }
 

@@ -18,11 +18,11 @@ public class DatabaseConfig {
 
     /**
      * Default constructor.
-     * Loads properties from the {@code application.properties} configuration file,
+     * Loads properties from the {@code database.properties} configuration file,
      * and initializes the database URL, username, and password.
      */
     public DatabaseConfig() {
-        Properties properties = loadProperties();
+        Properties properties = loadProperties("database.properties");
         this.url = properties.getProperty("database.url");
         this.username = properties.getProperty("database.username");
         this.password = properties.getProperty("database.password");
@@ -44,18 +44,18 @@ public class DatabaseConfig {
     }
 
     /**
-     * Loads database properties from the {@code application.properties} configuration file.
+     * Loads database properties from the {@code database.properties} configuration file.
      *
      * @return a {@link Properties} object containing database settings
      * @throws RuntimeException if the configuration file cannot be found or loaded
      */
-    public Properties loadProperties() {
+    public Properties loadProperties(String prop) {
         Properties properties = new Properties();
-        try (InputStream input = getClass().getClassLoader().getResourceAsStream("application.properties")) {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream(prop)) {
             if (input != null) {
                 properties.load(input);
             } else {
-                throw new IOException("Unable to find application.properties");
+                throw new IOException("Unable to find database.properties");
             }
         } catch (IOException ex) {
             throw new RuntimeException("Failed to load properties", ex);

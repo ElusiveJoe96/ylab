@@ -11,6 +11,21 @@ import java.util.Optional;
 
 public class UserRepository {
     private final DatabaseConfig databaseConfig;
+    private static final String INSERT_USER_QUERY = "INSERT INTO car_shop_schema.users " +
+            "(name, email, password, role, contact_info) " +
+            "VALUES (?, ?, ?, ?, ?)";
+    private static final String UPDATE_USER_QUERY = "UPDATE car_shop_schema.users " +
+            "SET name = ?, email = ?, password = ?, role = ?, contact_info = ? " +
+            "WHERE id = ?";
+    private static final String DELETE_USER_QUERY = "DELETE FROM car_shop_schema.users WHERE id = ?";
+    private static final String FIND_BY_ID_QUERY = "SELECT id, name, email, password, role, contact_info " +
+            "FROM car_shop_schema.users WHERE id = ?";
+    private static final String FIND_BY_EMAIL_QUERY = "SELECT id, name, email, password, role, contact_info " +
+            "FROM car_shop_schema.users WHERE email = ?";
+    private static final String FIND_ALL_QUERY = "SELECT id, name, email, password, role, contact_info " +
+            "FROM car_shop_schema.users";
+    private static final String FIND_BY_ROLE_QUERY = "SELECT id, name, email, password, role, contact_info " +
+            "FROM car_shop_schema.users WHERE role = ?";
 
     public UserRepository(DatabaseConfig databaseConfig) {
         this.databaseConfig = databaseConfig;
@@ -25,11 +40,8 @@ public class UserRepository {
     }
 
     private void insert(User user) {
-        String query = "INSERT INTO car_shop_schema.users (name, email, password, role, contact_info) " +
-                "VALUES (?, ?, ?, ?, ?)";
-
         try (Connection connection = databaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement statement = connection.prepareStatement(INSERT_USER_QUERY, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setString(1, user.getName());
             statement.setString(2, user.getEmail());
@@ -37,28 +49,16 @@ public class UserRepository {
             statement.setString(4, user.getRole().name());
             statement.setString(5, user.getContactInfo());
 
-            int rowsAffected = statement.executeUpdate();
+            statement.executeUpdate();
 
-            if (rowsAffected > 0) {
-                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        user.setId(generatedKeys.getInt(1));
-                    }
-                }
-            }
         } catch (SQLException e) {
-            System.err.println("Error inserting user: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     private void update(User user) {
-        String query = "UPDATE car_shop_schema.users " +
-                "SET name = ?, email = ?, password = ?, role = ?, contact_info = ? " +
-                "WHERE id = ?";
-
         try (Connection connection = databaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+             PreparedStatement statement = connection.prepareStatement(UPDATE_USER_QUERY)) {
 
             statement.setString(1, user.getName());
             statement.setString(2, user.getEmail());
@@ -67,41 +67,28 @@ public class UserRepository {
             statement.setString(5, user.getContactInfo());
             statement.setInt(6, user.getId());
 
-            int rowsAffected = statement.executeUpdate();
+            statement.executeUpdate();
 
-            if (rowsAffected == 0) {
-                System.out.println("No user found with ID: " + user.getId());
-            }
         } catch (SQLException e) {
-            System.err.println("Error updating user: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     public void delete(int userId) {
-        String query = "DELETE FROM car_shop_schema.users WHERE id = ?";
-
         try (Connection connection = databaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+             PreparedStatement statement = connection.prepareStatement(DELETE_USER_QUERY)) {
 
             statement.setInt(1, userId);
-            int rowsAffected = statement.executeUpdate();
+            statement.executeUpdate();
 
-            if (rowsAffected == 0) {
-                System.out.println("No user found with ID: " + userId);
-            }
         } catch (SQLException e) {
-            System.err.println("Error deleting user: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     public Optional<User> findById(int userId) {
-        String query = "SELECT id, name, email, password, role, contact_info " +
-                "FROM car_shop_schema.users WHERE id = ?";
-
         try (Connection connection = databaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+             PreparedStatement statement = connection.prepareStatement(FIND_BY_ID_QUERY)) {
 
             statement.setInt(1, userId);
 
@@ -119,11 +106,8 @@ public class UserRepository {
     }
 
     public Optional<User> findByEmail(String email) {
-        String query = "SELECT id, name, email, password, role, contact_info " +
-                "FROM car_shop_schema.users WHERE email = ?";
-
         try (Connection connection = databaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+             PreparedStatement statement = connection.prepareStatement(FIND_BY_EMAIL_QUERY)) {
 
             statement.setString(1, email);
 
@@ -134,20 +118,17 @@ public class UserRepository {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error finding user by email: " + e.getMessage());
             e.printStackTrace();
         }
         return Optional.empty();
     }
 
     public List<User> findAll() {
-        String query = "SELECT id, name, email, password, role, contact_info " +
-                "FROM car_shop_schema.users";
         List<User> users = new ArrayList<>();
 
         try (Connection connection = databaseConfig.getConnection();
              Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
+             ResultSet resultSet = statement.executeQuery(FIND_ALL_QUERY)) {
 
             while (resultSet.next()) {
                 User user = mapRowToUser(resultSet);
@@ -161,12 +142,10 @@ public class UserRepository {
     }
 
     public List<User> findByRole(Role role) {
-        String query = "SELECT id, name, email, password, role, contact_info " +
-                "FROM car_shop_schema.users WHERE role = ?";
         List<User> users = new ArrayList<>();
 
         try (Connection connection = databaseConfig.getConnection();
-             PreparedStatement statement = connection.prepareStatement(query)) {
+             PreparedStatement statement = connection.prepareStatement(FIND_BY_ROLE_QUERY)) {
 
             statement.setString(1, role.name());
 
