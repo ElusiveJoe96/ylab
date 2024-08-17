@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1" author="creator">
+        <sql>
+            CREATE SCHEMA IF NOT EXISTS car_shop_schema;
+            CREATE SCHEMA IF NOT EXISTS car_shop_log_schema;
+        </sql>
+    </changeSet>
+
+    <changeSet id="6" author="creator">
+        <createSequence
+                startValue="1"
+                incrementBy="1"
+                sequenceName="users_id_seq"
+                schemaName="car_shop_schema"/>
+
+        <createSequence
+                startValue="1"
+                incrementBy="1"
+                sequenceName="cars_id_seq"
+                schemaName="car_shop_schema"/>
+
+        <createSequence
+                startValue="1"
+                incrementBy="1"
+                sequenceName="orders_id_seq"
+                schemaName="car_shop_schema"/>
+
+        <createSequence
+                startValue="1"
+                incrementBy="1"
+                sequenceName="logs_id_seq"
+                schemaName="car_shop_log_schema"/>
+    </changeSet>
+
+    <changeSet id="2" author="creator">
+        <createTable tableName="logs" schemaName="car_shop_log_schema">
+            <column name="id" type="int" defaultValueComputed="nextval('car_shop_log_schema.logs_id_seq')">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="action" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="timestamp" type="timestamp">
+                <constraints nullable="false" />
+            </column>
+            <column name="details" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="3" author="creator">
+        <createTable tableName="users" schemaName="car_shop_schema">
+            <column name="id" type="int" defaultValueComputed="nextval('car_shop_schema.users_id_seq')">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="varchar(100)">
+                <constraints nullable="false" />
+            </column>
+            <column name="role" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="contact_info" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="4" author="creator">
+        <createTable tableName="cars" schemaName="car_shop_schema">
+            <column name="id" type="int" defaultValueComputed="nextval('car_shop_schema.cars_id_seq')">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="brand" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="model" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="year" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="decimal(10, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="5" author="creator">
+        <createTable tableName="orders" schemaName="car_shop_schema">
+            <column name="id" type="int" defaultValueComputed="nextval('car_shop_schema.orders_id_seq')">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="car_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+
+
+    <changeSet id="7" author="creator">
+        <addForeignKeyConstraint baseTableName="orders"
+                                 baseColumnNames="car_id"
+                                 referencedTableName="cars"
+                                 referencedColumnNames="id"
+                                 baseTableSchemaName="car_shop_schema"
+                                 referencedTableSchemaName="car_shop_schema"
+                                 constraintName="fk_orders_car_id"/>
+
+        <addForeignKeyConstraint baseTableName="orders"
+                                 baseColumnNames="user_id"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"
+                                 baseTableSchemaName="car_shop_schema"
+                                 referencedTableSchemaName="car_shop_schema"
+                                 constraintName="fk_orders_user_id"/>
+    </changeSet>
+</databaseChangeLog>

@@ -1,29 +1,35 @@
 package ru.ylab.ui;
 
 import lombok.AllArgsConstructor;
-import ru.ylab.controller.*;
+import ru.ylab.audit.AuditService;
+import ru.ylab.service.CarService;
+import ru.ylab.service.OrderService;
+import ru.ylab.service.UserService;
+
 import java.util.Scanner;
 
 @AllArgsConstructor
 public class AdminMenuCommand implements MenuCommand {
-    private final UserController userController;
-    private final CarController carController;
-    private final OrderController orderController;
-    private final AuditController auditController;
+    private final UserService userService;
+    private final CarService carService;
+    private final OrderService orderService;
+    private final AuditService auditService;
 
     @Override
     public void execute(int choice, Scanner scanner, int userId) {
         switch (choice) {
-            case 1 -> userController.viewAllUsers();
-            case 2 -> userController.updateUser(scanner);
-            case 3 -> carController.viewAllCars();
-            case 4 -> userController.setUserRole(scanner);
-            case 5 -> carController.addCar(scanner);
-            case 6 -> carController.updateCar(scanner);
-            case 7 -> carController.deleteCar(scanner);
-            case 8 -> orderController.createOrder(scanner, userId);
-            case 9 -> orderController.updateOrderStatus(scanner);
-            case 10 -> auditController.viewLogs();
+            case 1 -> userService.viewAllUsers();
+            case 2 -> userService.updateUser(scanner);
+            case 3 -> carService.viewAllCars();
+            case 4 -> userService.updateUserRole(scanner);
+            case 5 -> carService.addCar(scanner);
+            case 6 -> carService.updateCar(scanner);
+            case 7 -> carService.deleteCar(scanner);
+            case 8 -> orderService.getAllOrders();
+            case 9 -> orderService.createOrder(scanner);
+            case 10 -> orderService.updateOrderStatus(scanner);
+            case 11 -> auditService.viewAuditLogs();
+            case 12 -> userService.logout();
             case 0 -> exitApplication();
             default -> System.out.println("Invalid option. Please try again.");
         }
@@ -39,16 +45,12 @@ public class AdminMenuCommand implements MenuCommand {
                 5. Add car
                 6. Update car
                 7. Delete car
-                8. Create order
-                9. Update order status
-                10. Show logs
+                8. View all orders
+                9. Create order
+                10. Update order status
+                11. Show logs
+                12. Logout
                 0. Exit
                 """);
     }
-
-    private void exitApplication() {
-        System.out.println("Exiting application...");
-        System.exit(0);
-    }
-
 }

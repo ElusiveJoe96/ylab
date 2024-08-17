@@ -1,54 +1,52 @@
 package ru.ylab.ui;
 
+import ru.ylab.audit.AuditLogRepository;
 import ru.ylab.audit.AuditService;
+import ru.ylab.config.DatabaseConfig;
+import ru.ylab.config.LiquibaseConfig;
 import ru.ylab.domain.enums.Role;
 import ru.ylab.domain.model.User;
-import ru.ylab.controller.*;
 import ru.ylab.repository.*;
+import ru.ylab.service.CarService;
+import ru.ylab.service.OrderService;
+import ru.ylab.service.UserService;
 import ru.ylab.service.implementation.*;
 
 import java.util.Optional;
 import java.util.Scanner;
 
 public class MainMenu {
-
     private final MenuCommand adminMenu;
     private final MenuCommand managerMenu;
     private final MenuCommand clientMenu;
     private final MenuCommand guestMenu;
 
     public MainMenu() {
-        UserRepository userRepository = new UserRepository();
-        CarRepository carRepository = new CarRepository();
-        OrderRepository orderRepository = new OrderRepository();
+        DatabaseConfig databaseConfig = new DatabaseConfig();
+        LiquibaseConfig liquibaseConfig = new LiquibaseConfig(databaseConfig);
+        liquibaseConfig.runMigrations();
 
-        AuditService auditService = new AuditService();
-        UserServiceImpl userServiceImpl = new UserServiceImpl(userRepository, auditService);
-        OrderServiceImpl orderServiceImpl = new OrderServiceImpl(orderRepository, auditService);
-        CarServiceImpl carServiceImpl = new CarServiceImpl(carRepository, auditService);
+        UserRepository userRepository = new UserRepository(databaseConfig);
+        CarRepository carRepository = new CarRepository(databaseConfig);
+        OrderRepository orderRepository = new OrderRepository(databaseConfig);
+        AuditLogRepository auditLogRepository = new AuditLogRepository(databaseConfig);
 
+        AuditService auditService = new AuditService(auditLogRepository);
+        UserService userService = new UserServiceImpl(userRepository, auditService);
+        OrderService orderService = new OrderServiceImpl(orderRepository, auditService);
+        CarService carService = new CarServiceImpl(carRepository, auditService);
 
-        UserController userController = new UserController(userServiceImpl);
-        CarController carController = new CarController(carServiceImpl);
-        OrderController orderController = new OrderController(orderServiceImpl);
-        AuditController auditController = new AuditController(auditService);
-
-        adminMenu = new AdminMenuCommand(userController, carController, orderController, auditController);
-        managerMenu = new ManagerMenuCommand(userController, carController, orderController);
-        clientMenu = new ClientMenuCommand(carController, orderController, userController);
-        guestMenu = new GuestMenuCommand(userController);
-
-
-        User admin = new User(0, "admin", "admin@mail.ru", "1", Role.ADMIN, "1");
-        userRepository.save(admin);
+        adminMenu = new AdminMenuCommand(userService, carService, orderService, auditService);
+        managerMenu = new ManagerMenuCommand(userService, carService, orderService);
+        clientMenu = new ClientMenuCommand(userService, carService, orderService);
+        guestMenu = new GuestMenuCommand(userService);
     }
 
-
-    public void executeMenu(Role role, int choice, Scanner scanner) {
+    public void executeMenu(int choice, Scanner scanner) {
         Optional<User> currentUser = Optional.ofNullable(AuditService.loggedInUser);
         int userId = currentUser.map(User::getId).orElse(-1);
 
-        MenuCommand command = switch (role) {
+        MenuCommand command = switch (getCurrentUserRole()) {
             case ADMIN -> adminMenu;
             case MANAGER -> managerMenu;
             case CLIENT -> clientMenu;
@@ -57,9 +55,8 @@ public class MainMenu {
         command.execute(choice, scanner, userId);
     }
 
-
-    public void showMenu(Role role) {
-        MenuCommand command = switch (role) {
+    public void showMenu() {
+        MenuCommand command = switch (getCurrentUserRole()) {
             case ADMIN -> adminMenu;
             case MANAGER -> managerMenu;
             case CLIENT -> clientMenu;
@@ -68,11 +65,9 @@ public class MainMenu {
           command.showMenu();
     }
 
-
     public Role getCurrentUserRole() {
         return Optional.ofNullable(AuditService.loggedInUser)
                 .map(User::getRole)
                 .orElse(Role.GUEST);
     }
-
 }

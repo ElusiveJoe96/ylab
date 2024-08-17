@@ -22,13 +22,17 @@ public class OrderServiceImpl implements OrderService {
         this.auditService = auditService;
     }
 
-    //TODO swap args, more functions?
-    public void createOrder(int userId, Scanner scanner) {
+    public void createOrder(Scanner scanner) {
         System.out.print("Enter car ID: ");
         int carId = ValidationUtil.getValidInt(scanner);
         scanner.nextLine();
+        System.out.print("Enter user ID: ");
+        int userId = ValidationUtil.getValidInt(scanner);
+        scanner.nextLine();
         System.out.print("Enter order type (PURCHASE, SERVICE): ");
         OrderType type = ValidationUtil.getValidEnumValue(scanner, OrderType.class);
+
+
 
         List<Order> existingOrders = orderRepository.findAll();
         boolean isSold = existingOrders.stream()
@@ -36,13 +40,13 @@ public class OrderServiceImpl implements OrderService {
 
         if (isSold) {
             System.out.println("Car sold");
+        } else {
+            Order order = new Order(0, carId, userId, LocalDateTime.now(), OrderStatus.PENDING, type);
+            orderRepository.save(order);
+            System.out.println("Order created successfully.");
+            auditService.logAction(AuditService.loggedInUser.getId(), "CREATE_ORDER",
+                    "Created order: " + order);
         }
-
-        Order order = new Order(0, carId, userId, LocalDateTime.now(), OrderStatus.PENDING, type);
-        orderRepository.save(order);
-        System.out.println("Order created successfully.");
-        auditService.logAction(AuditService.loggedInUser.getId(), "CREATE_ORDER",
-                "Created order: " + order);
     }
 
     public void updateOrderStatus(Scanner scanner) {
@@ -76,8 +80,6 @@ public class OrderServiceImpl implements OrderService {
             System.out.println("Order not found");
         }
     }
-
-    //TODO creat method to close order(set status canceled)
 
     public void getAllOrders() {
         List<Order> orders = orderRepository.findAll();
