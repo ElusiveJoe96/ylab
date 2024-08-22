@@ -11,10 +11,24 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - my_network
+      - network
+
+
+  tomcat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tomcat_server
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - network
+
 
 volumes:
   postgres_data:
 
 networks:
-  my_network:
+  network:
