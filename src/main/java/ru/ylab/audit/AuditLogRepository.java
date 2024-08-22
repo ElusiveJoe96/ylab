@@ -11,19 +11,19 @@ public class AuditLogRepository {
     private final DatabaseConfig databaseConfig;
 
     private static final String INSERT_LOG_QUERY =
-            "INSERT INTO car_shop_log_schema.logs (user_id, action, timestamp, details) VALUES (?, ?, ?, ?)";
+            "INSERT INTO car_shop_schema.logs (user_id, action, timestamp, details) VALUES (?, ?, ?, ?)";
 
     private static final String SELECT_ALL_LOGS_QUERY =
-            "SELECT id, user_id, action, timestamp, details FROM car_shop_log_schema.logs";
+            "SELECT id, user_id, action, timestamp, details FROM car_shop_schema.logs";
 
     private static final String SELECT_LOGS_BY_USER_ID_QUERY =
-            "SELECT id, user_id, action, timestamp, details FROM car_shop_log_schema.logs WHERE user_id = ?";
+            "SELECT id, user_id, action, timestamp, details FROM car_shop_schema.logs WHERE user_id = ?";
 
     private static final String SELECT_LOGS_BY_ACTION_QUERY =
-            "SELECT id, user_id, action, timestamp, details FROM car_shop_log_schema.logs WHERE action = ?";
+            "SELECT id, user_id, action, timestamp, details FROM car_shop_schema.logs WHERE action = ?";
 
     private static final String SELECT_LOGS_BY_TIMESTAMP_RANGE_QUERY =
-            "SELECT id, user_id, action, timestamp, details FROM car_shop_log_schema.logs WHERE timestamp BETWEEN ? AND ?";
+            "SELECT id, user_id, action, timestamp, details FROM car_shop_schema.logs WHERE timestamp BETWEEN ? AND ?";
 
     public AuditLogRepository(DatabaseConfig databaseConfig) {
         this.databaseConfig = databaseConfig;

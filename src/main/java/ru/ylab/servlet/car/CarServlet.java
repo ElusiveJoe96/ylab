@@ -27,7 +27,7 @@ public class CarServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String carId = req.getParameter("id");
         if (carId != null) {
             CarDTO car = carService.getCarById(Integer.parseInt(carId));
@@ -47,14 +47,14 @@ public class CarServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         CarDTO carDTO = objectMapper.readValue(req.getReader(), CarDTO.class);
         carService.addCar(carDTO);
         resp.setStatus(HttpServletResponse.SC_CREATED);
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    public void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         CarDTO carDTO = objectMapper.readValue(req.getReader(), CarDTO.class);
         boolean updated = carService.updateCar(carDTO);
         if (updated) {
@@ -65,7 +65,7 @@ public class CarServlet extends HttpServlet {
     }
 
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    public void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String carId = req.getParameter("id");
         if (carId != null) {
             boolean deleted = carService.deleteCar(Integer.parseInt(carId));

@@ -1,6 +1,5 @@
 package ru.ylab.servlet.user;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.ylab.service.UserService;
 import ru.ylab.util.SingletonProvider;
 
@@ -20,7 +19,7 @@ public class LoginServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             String email = req.getParameter("email");
             String password = req.getParameter("password");

@@ -22,7 +22,7 @@ public class RegisterServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             UserDTO userDTO = objectMapper.readValue(req.getInputStream(), UserDTO.class);
             userService.registerUser(userDTO, resp);

@@ -26,14 +26,14 @@ public class OrderServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         OrderDTO orderDTO = objectMapper.readValue(request.getInputStream(), OrderDTO.class);
         orderService.createOrder(orderDTO);
         response.setStatus(HttpServletResponse.SC_CREATED);
     }
 
     @Override
-    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int orderId = Integer.parseInt(request.getParameter("id"));
         OrderStatus status = OrderStatus.valueOf(request.getParameter("status"));
         boolean updated = orderService.updateOrderStatus(orderId, status);
@@ -45,7 +45,7 @@ public class OrderServlet extends HttpServlet {
     }
 
     @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int orderId = Integer.parseInt(request.getParameter("id"));
         boolean deleted = orderService.deleteOrder(orderId);
         if (deleted) {
@@ -56,7 +56,7 @@ public class OrderServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         if ("all".equals(action)) {
             List<OrderDTO> orders = orderService.getAllOrders();

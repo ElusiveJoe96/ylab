@@ -12,8 +12,4 @@ public class CarDTO {
     private int id;
     private String brand;
     private String model;
-    private int year;
-    private double price;
-    private CarStatus status;
-    private String description;
 }

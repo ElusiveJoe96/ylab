@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
         this.objectMapper = new ObjectMapper();
     }
 
-    private boolean checkAdminRole(HttpServletResponse resp) {
+    public boolean checkAdminRole(HttpServletResponse resp) {
         if (AuditService.loggedInUser == null || !AuditService.loggedInUser.getRole().equals(Role.ADMIN)) {
             try {
                 resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -31,9 +31,9 @@ public class UserServiceImpl implements UserService {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(User user, HttpServletResponse resp) {
         try {
-            if (!checkAdminRole(resp)) return;
+            if (checkAdminRole(resp)) return;
 
             Optional<User> existingUser = userRepository.findById(user.getId());
             if (existingUser.isPresent()) {
@@ -125,7 +125,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(int userId, HttpServletResponse resp) {
         try {
-            if (!checkAdminRole(resp)) return;
+            if (checkAdminRole(resp)) return;
 
             Optional<User> userToDelete = userRepository.findById(userId);
             if (userToDelete.isPresent()) {
@@ -143,7 +143,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> viewAllUsers(HttpServletResponse resp) {
         try {
-            if (!checkAdminRole(resp)) return Collections.emptyList();
+            if (checkAdminRole(resp)) return Collections.emptyList();
 
             List<User> users = userRepository.findAll();
             resp.setStatus(HttpServletResponse.SC_OK);
@@ -158,7 +158,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUserRole(int userId, Role newRole, HttpServletResponse resp) {
         try {
-            if (!checkAdminRole(resp)) return;
+            if (checkAdminRole(resp)) return;
 
             Optional<User> optionalUser = userRepository.findById(userId);
             if (optionalUser.isPresent()) {
