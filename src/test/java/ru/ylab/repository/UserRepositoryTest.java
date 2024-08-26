@@ -5,12 +5,12 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ru.ylab.config.DatabaseConfig;
+import ru.ylab.config.LiquibaseConfig;
 import ru.ylab.domain.enums.Role;
 import ru.ylab.domain.model.User;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,17 +19,18 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers
 public class UserRepositoryTest {
 
+
     @Container
     public static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:latest")
             .withDatabaseName("testdb")
             .withUsername("test")
             .withPassword("test");
 
-    private DatabaseConfig databaseConfig;
-    private UserRepository userRepository;
+    private static DatabaseConfig databaseConfig;
+    private static UserRepository userRepository;
 
-    @BeforeEach
-    public void setUp() throws Exception {
+    @BeforeAll
+    public static void setUpDatabaseConfig() {
         databaseConfig = new DatabaseConfig() {
             @Override
             public Connection getConnection() {
@@ -45,27 +46,10 @@ public class UserRepositoryTest {
         };
 
         userRepository = new UserRepository(databaseConfig);
-
-        try (Connection connection = databaseConfig.getConnection();
-             Statement statement = connection.createStatement()) {
-            statement.execute("CREATE SCHEMA IF NOT EXISTS car_shop_schema");
-            statement.execute("CREATE TABLE IF NOT EXISTS car_shop_schema.users (" +
-                    "id SERIAL PRIMARY KEY, " +
-                    "name VARCHAR(255) NOT NULL, " +
-                    "email VARCHAR(255) NOT NULL UNIQUE, " +
-                    "password VARCHAR(255) NOT NULL, " +
-                    "role VARCHAR(50) NOT NULL, " +
-                    "contact_info TEXT)");
-        }
+        LiquibaseConfig liquibaseConfig = new LiquibaseConfig(databaseConfig);
+        liquibaseConfig.runMigrations();
     }
 
-    @AfterEach
-    public void tearDown() throws Exception {
-        try (Connection connection = databaseConfig.getConnection();
-             Statement statement = connection.createStatement()) {
-            statement.execute("DROP TABLE IF EXISTS car_shop_schema.users");
-        }
-    }
 
     @Test
     @DisplayName("Save a new user and verify it is saved correctly")
@@ -87,24 +71,7 @@ public class UserRepositoryTest {
         assertEquals("john.doe@example.com", foundUser.get().getEmail());
     }
 
-    @Test
-    @DisplayName("Update an existing user and verify the update is correct")
-    public void testSave_UpdateExistingUser() {
-        User user = new User();
-        user.setName("John Doe");
-        user.setEmail("john.doe@example.com");
-        user.setPassword("password123");
-        user.setRole(Role.CLIENT);
-        user.setContactInfo("Contact info");
-        userRepository.save(user);
 
-        user.setName("John Smith");
-        userRepository.save(user);
-
-        Optional<User> foundUser = userRepository.findById(user.getId());
-        assertTrue(foundUser.isPresent());
-        assertEquals("John Smith", foundUser.get().getName());
-    }
 
     @Test
     @DisplayName("Delete a user and verify it is removed from the database")

@@ -7,6 +7,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import ru.ylab.audit.AuditLog;
 import ru.ylab.audit.AuditLogRepository;
 import ru.ylab.config.DatabaseConfig;
+import ru.ylab.config.LiquibaseConfig;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -17,6 +18,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AuditRepositoryTest {
 
     @Container
@@ -25,12 +27,11 @@ public class AuditRepositoryTest {
             .withUsername("test")
             .withPassword("test");
 
-    private DatabaseConfig databaseConfig;
     private AuditLogRepository auditLogRepository;
 
-    @BeforeEach
-    public void setUp() throws Exception {
-        databaseConfig = new DatabaseConfig() {
+    @BeforeAll
+    public void setUpDatabase() throws Exception {
+        DatabaseConfig databaseConfig = new DatabaseConfig() {
             @Override
             public Connection getConnection() {
                 try {
@@ -45,24 +46,24 @@ public class AuditRepositoryTest {
         };
 
         auditLogRepository = new AuditLogRepository(databaseConfig);
-
-        try (Connection connection = databaseConfig.getConnection();
-             Statement statement = connection.createStatement()) {
-            statement.execute("CREATE SCHEMA IF NOT EXISTS car_shop_log_schema");
-            statement.execute("CREATE TABLE IF NOT EXISTS car_shop_log_schema.logs (" +
-                    "id SERIAL PRIMARY KEY, " +
-                    "user_id INT NOT NULL, " +
-                    "action VARCHAR(255) NOT NULL, " +
-                    "timestamp TIMESTAMP NOT NULL, " +
-                    "details TEXT)");
-        }
+        LiquibaseConfig liquibaseConfig = new LiquibaseConfig(databaseConfig);
+        liquibaseConfig.runMigrations();
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
-        try (Connection connection = databaseConfig.getConnection();
+    public void cleanUpDatabase() throws Exception {
+        try (Connection connection = postgreSQLContainer.createConnection("");
              Statement statement = connection.createStatement()) {
-            statement.execute("DROP TABLE IF EXISTS car_shop_log_schema.logs");
+            statement.execute("TRUNCATE car_shop_schema.logs RESTART IDENTITY CASCADE");
+        }
+    }
+
+    @AfterAll
+    public void tearDownDatabase() throws Exception {
+        try (Connection connection = postgreSQLContainer.createConnection("");
+             Statement statement = connection.createStatement()) {
+            statement.execute("DROP TABLE IF EXISTS car_shop_schema.logs");
+            statement.execute("DROP SCHEMA IF EXISTS car_shop_schema CASCADE");
         }
     }
 
@@ -79,11 +80,10 @@ public class AuditRepositoryTest {
 
         assertTrue(auditLog.getId() > 0);
 
-        AuditLog foundLog = auditLogRepository.findAll().stream()
-                .filter(log -> log.getId() == auditLog.getId())
-                .findFirst()
-                .orElse(null);
-        assertNotNull(foundLog);
+        List<AuditLog> logs = auditLogRepository.findAll();
+        assertEquals(1, logs.size());
+
+        AuditLog foundLog = logs.get(0);
         assertEquals(auditLog.getUserId(), foundLog.getUserId());
         assertEquals(auditLog.getAction(), foundLog.getAction());
         assertEquals(auditLog.getDetails(), foundLog.getDetails());

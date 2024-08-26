@@ -46,7 +46,7 @@ public class LiquibaseConfig {
              Database database = DatabaseFactory.getInstance()
                      .findCorrectDatabaseImplementation(new JdbcConnection(connection));
              Statement stmt = connection.createStatement()) {
-            String createSchemaSQL = "CREATE SCHEMA IF NOT EXISTS car_shop_log_schema";
+            String createSchemaSQL = "CREATE SCHEMA IF NOT EXISTS car_shop_schema";
             stmt.execute(createSchemaSQL);
 
             String changeLogTableSchema = properties.getProperty("liquibase.change-log-table-schema",

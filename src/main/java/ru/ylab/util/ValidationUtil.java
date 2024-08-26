@@ -1,5 +1,7 @@
 package ru.ylab.util;
 
+import ru.ylab.domain.dto.UserDTO;
+
 import java.util.EnumSet;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -14,6 +16,21 @@ public class ValidationUtil {
 
     public static boolean isNonEmpty(String str) {
         return str != null && !str.trim().isEmpty();
+    }
+
+    public static void validateUserDTO(UserDTO userDTO) {
+        if (!isNonEmpty(userDTO.getName())) {
+            throw new IllegalArgumentException("Name cannot be empty");
+        }
+        if (!isValidEmail(userDTO.getEmail())) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+        if (!isNonEmpty(userDTO.getPassword())) {
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
+        if (!isNonEmpty(userDTO.getContactInfo())) {
+            throw new IllegalArgumentException("Contact info cannot be empty");
+        }
     }
 
     public static int getValidInt(Scanner scanner) {

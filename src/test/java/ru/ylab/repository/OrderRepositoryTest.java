@@ -5,6 +5,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ru.ylab.config.DatabaseConfig;
+import ru.ylab.config.LiquibaseConfig;
 import ru.ylab.domain.enums.OrderStatus;
 import ru.ylab.domain.enums.OrderType;
 import ru.ylab.domain.model.Order;
@@ -26,11 +27,12 @@ public class OrderRepositoryTest {
             .withUsername("test")
             .withPassword("test");
 
-    private DatabaseConfig databaseConfig;
-    private OrderRepository orderRepository;
+    private static DatabaseConfig databaseConfig;
+    private static OrderRepository orderRepository;
+    private static LiquibaseConfig liquibaseConfig;
 
-    @BeforeEach
-    public void setUp() throws Exception {
+    @BeforeAll
+    public static void setUpDatabaseConfig() {
         databaseConfig = new DatabaseConfig() {
             @Override
             public Connection getConnection() {
@@ -46,27 +48,10 @@ public class OrderRepositoryTest {
         };
 
         orderRepository = new OrderRepository(databaseConfig);
-
-        try (Connection connection = databaseConfig.getConnection();
-             Statement statement = connection.createStatement()) {
-            statement.execute("CREATE SCHEMA IF NOT EXISTS car_shop_schema");
-            statement.execute("CREATE TABLE IF NOT EXISTS car_shop_schema.orders (" +
-                    "id SERIAL PRIMARY KEY, " +
-                    "user_id INT NOT NULL, " +
-                    "car_id INT NOT NULL, " +
-                    "order_date TIMESTAMP NOT NULL, " +
-                    "status VARCHAR(50) NOT NULL, " +
-                    "type VARCHAR(50) NOT NULL)");
-        }
+        liquibaseConfig = new LiquibaseConfig(databaseConfig);
+        liquibaseConfig.runMigrations();
     }
 
-    @AfterEach
-    public void tearDown() throws Exception {
-        try (Connection connection = databaseConfig.getConnection();
-             Statement statement = connection.createStatement()) {
-            statement.execute("DROP TABLE IF EXISTS car_shop_schema.orders");
-        }
-    }
 
     @Test
     @DisplayName("Save a new order and verify it is saved correctly")
@@ -181,10 +166,8 @@ public class OrderRepositoryTest {
         assertEquals(OrderStatus.PENDING, orders.get(0).getStatus());
     }
 
-
-
     @Test
-    @DisplayName("Find orders by status and verify the result")
+    @DisplayName("Find orders by client ID and verify the result")
     public void testFindByClientId() {
         Order order = new Order();
         order.setUserId(1);

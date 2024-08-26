@@ -1,192 +1,224 @@
 package ru.ylab.service.implementation;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.ylab.audit.AuditService;
+import ru.ylab.domain.dto.UserDTO;
 import ru.ylab.domain.model.User;
 import ru.ylab.domain.enums.Role;
 import ru.ylab.repository.UserRepository;
 import ru.ylab.service.UserService;
 import ru.ylab.util.ValidationUtil;
 
+import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Scanner;
 
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final AuditService auditService;
+    private final ObjectMapper objectMapper;
 
-    public UserServiceImpl(UserRepository userRepository, AuditService auditService) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.auditService = auditService;
+        this.objectMapper = new ObjectMapper();
     }
 
-    public void registerUser(Scanner scanner) {
-        User user = getUserDetails(scanner);
-
-        if (!ValidationUtil.isValidEmail(user.getEmail())) {
-            System.out.println("Invalid email format");
-            return;
-        }
-        if (!ValidationUtil.isNonEmpty(user.getName()) || !ValidationUtil.isNonEmpty(user.getPassword())) {
-            System.out.println("Name and password cannot be empty");
-            return;
-        }
-
-        userRepository.save(user);
-        System.out.println("User registered successfully.");
-        auditService.logAction(user.getId(), "REGISTER_USER", "Registered user: " + user);
-    }
-
-    public Optional<User> login(Scanner scanner) {
-        System.out.print("Enter email: ");
-        String email = scanner.nextLine();
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine();
-
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            if (user.getPassword().equals(password)) {
-                AuditService.loggedInUser = user;
-                System.out.println("Login successful. Welcome " + user.getName() + "!");
-                auditService.logAction(user.getId(), "LOGIN", "User logged in: " + email);
-                return Optional.of(user);
+    public boolean checkAdminRole(HttpServletResponse resp) {
+        if (AuditService.loggedInUser == null || !AuditService.loggedInUser.getRole().equals(Role.ADMIN)) {
+            try {
+                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                resp.getWriter().write(objectMapper.writeValueAsString("Unauthorized action"));
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+            return true;
         }
-        System.out.println("Invalid email or password.");
-        return Optional.empty();
+        return false;
     }
 
-    public void logout() {
-        if (AuditService.loggedInUser != null) {
-            auditService.logAction(AuditService.loggedInUser.getId(), "LOGOUT",
-                    "User logged out: " + AuditService.loggedInUser.getEmail());
-            AuditService.loggedInUser = null;
-            System.out.println("Logout successful.");
-        } else {
-            System.out.println("No user is currently logged in.");
-        }
-    }
+    @Override
+    public void registerUser(UserDTO userDTO, HttpServletResponse resp) {
+        try {
+            if (!ValidationUtil.isValidEmail(userDTO.getEmail())) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().write(objectMapper.writeValueAsString("Invalid email format"));
+                return;
+            }
+            if (!ValidationUtil.isNonEmpty(userDTO.getName()) || !ValidationUtil.isNonEmpty(userDTO.getPassword())) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().write(objectMapper.writeValueAsString("Name and password cannot be empty"));
+                return;
+            }
 
-    public void updateUser(Scanner scanner) {
-        System.out.print("Enter user ID to update: ");
-        int userId = scanner.nextInt();
-        scanner.nextLine();
-        Optional<User> user = userRepository.findById(userId);
+            User user = new User();
+            user.setName(userDTO.getName());
+            user.setEmail(userDTO.getEmail());
+            user.setPassword(userDTO.getPassword());
+            user.setRole(Role.CLIENT);
+            user.setContactInfo(userDTO.getContactInfo());
 
-        user.ifPresentOrElse(existingUser -> {
-            User newUserInfo = gerUserDetailsToUpdate(scanner);
-            existingUser.setName(newUserInfo.getName());
-            existingUser.setEmail(newUserInfo.getEmail());
-            existingUser.setPassword(newUserInfo.getPassword());
-            existingUser.setRole(newUserInfo.getRole());
-            existingUser.setContactInfo(newUserInfo.getContactInfo());
-            userRepository.save(existingUser);
-
-            System.out.println("User updated successfully.");
-            auditService.logAction(AuditService.loggedInUser.getId(), "UPDATE_USER",
-                    "Updated user: " + existingUser);
-        },
-                () -> System.out.println("User not found"));
-    }
-
-    public User getUserDetails(Scanner scanner) {
-        System.out.print("Enter name: ");
-        String name = scanner.nextLine();
-
-        System.out.print("Enter email: ");
-        String email = scanner.nextLine();
-
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine();
-
-        System.out.print("Enter contact info: ");
-        String contactInfo = scanner.nextLine();
-        return new User(0, name, email, password, Role.CLIENT, contactInfo);
-    }
-
-    public User gerUserDetailsToUpdate(Scanner scanner) {
-        System.out.print("Enter new name (leave empty to keep current): ");
-        String name = scanner.nextLine();
-
-        System.out.print("Enter new email (leave empty to keep current): ");
-        String email = scanner.nextLine();
-
-        System.out.print("Enter new password (leave empty to keep current): ");
-        String password = scanner.nextLine();
-
-        System.out.print("Enter new role (ADMIN, MANAGER, CLIENT) (leave empty to keep current): ");
-        Role role = ValidationUtil.getValidEnumValue(scanner, Role.class);
-
-        System.out.print("Enter new contact info (leave empty to keep current): ");
-        String contactInfo = scanner.nextLine();
-
-        return new User(0, name, email, password, role, contactInfo);
-    }
-
-    public void deleteUser(int userId) {
-        Optional<User> userToDelete = userRepository.findById(userId);
-
-        if (userToDelete.isPresent()) {
-            userRepository.delete(userId);
-            auditService.logAction(AuditService.loggedInUser.getId(), "DELETE_USER",
-                    "Deleted user with ID: " + userId);
-            System.out.println("User with ID " + userId + " has been deleted.");
-        } else {
-            System.out.println("User with ID " + userId + " not found.");
-        }
-    }
-
-    public void viewAllUsers() {
-        List<User> users = userRepository.findAll();
-        if (users.isEmpty()) {
-            System.out.println("No users available.");
-        } else {
-            users.forEach(user -> System.out.println(user.getId() + ": " + user.getName() +
-                    ", Role: " + user.getRole() + ", Contact Info: " + user.getContactInfo()));
-        }
-    }
-
-    public void updateUserRole(Scanner scanner) {
-        System.out.print("Enter user ID to update role: ");
-        int userId = scanner.nextInt();
-        scanner.nextLine();
-        System.out.print("Enter new role (ADMIN, MANAGER, CLIENT): ");
-        Role newRole = Role.valueOf(scanner.nextLine().toUpperCase());
-
-
-        Optional<User> optionalUser = userRepository.findById(userId);
-        optionalUser.ifPresent(user -> {
-            user.setRole(newRole);
             userRepository.save(user);
-            System.out.println("User role updated successfully.");
-            auditService.logAction(AuditService.loggedInUser.getId(), "UPDATE_USER_ROLE",
-                    "Updated role for user ID: " + userId + " to " + newRole);
-        });
-    }
-
-    public void viewMyInfo() {
-        User loggedInUser = AuditService.loggedInUser;
-        if (loggedInUser != null) {
-            System.out.println("ID: " + loggedInUser.getId());
-            System.out.println("Name: " + loggedInUser.getName());
-            System.out.println("Email: " + loggedInUser.getEmail());
-            System.out.println("Role: " + loggedInUser.getRole());
-            System.out.println("Contact Info: " + loggedInUser.getContactInfo());
-        } else {
-            System.out.println("No user is logged in.");
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+            resp.getWriter().write(objectMapper.writeValueAsString(user));
+        } catch (Exception e) {
+            handleError(resp, e);
         }
     }
 
-    public Optional<User> getUserById(int userId) {
-        return userRepository.findById(userId);
+    @Override
+    public Optional<User> login(String email, String password, HttpServletResponse resp) {
+        try {
+            Optional<User> userOptional = userRepository.findByEmail(email);
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                if (user.getPassword().equals(password)) {
+                    AuditService.loggedInUser = user;
+                    resp.setStatus(HttpServletResponse.SC_OK);
+                    resp.getWriter().write(objectMapper.writeValueAsString(user));
+                    return Optional.of(user);
+                }
+            }
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().write(objectMapper.writeValueAsString("Invalid email or password"));
+            return Optional.empty();
+        } catch (Exception e) {
+            handleError(resp, e);
+            return Optional.empty();
+        }
     }
 
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    @Override
+    public void logout(HttpServletResponse resp) {
+        try {
+            if (AuditService.loggedInUser != null) {
+                AuditService.loggedInUser = null;
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.getWriter().write(objectMapper.writeValueAsString("Logout successful"));
+            } else {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().write(objectMapper.writeValueAsString("No user is currently logged in"));
+            }
+        } catch (Exception e) {
+            handleError(resp, e);
+        }
     }
 
-    public List<User> getUsersByRole(Role role) {
-        return userRepository.findByRole(role);
+    @Override
+    public void updateUser(User user, HttpServletResponse resp) {
+        try {
+            if (checkAdminRole(resp)) return;
+
+            Optional<User> existingUser = userRepository.findById(user.getId());
+            if (existingUser.isPresent()) {
+                userRepository.save(user);
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.getWriter().write(objectMapper.writeValueAsString(user));
+            } else {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                resp.getWriter().write(objectMapper.writeValueAsString("User not found"));
+            }
+        } catch (Exception e) {
+            handleError(resp, e);
+        }
+    }
+
+    @Override
+    public void deleteUser(int userId, HttpServletResponse resp) {
+        try {
+            if (checkAdminRole(resp)) return;
+
+            Optional<User> userToDelete = userRepository.findById(userId);
+            if (userToDelete.isPresent()) {
+                userRepository.delete(userId);
+                resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+            } else {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                resp.getWriter().write(objectMapper.writeValueAsString("User not found"));
+            }
+        } catch (Exception e) {
+            handleError(resp, e);
+        }
+    }
+
+    @Override
+    public List<User> viewAllUsers(HttpServletResponse resp) {
+        try {
+            if (checkAdminRole(resp)) return Collections.emptyList();
+
+            List<User> users = userRepository.findAll();
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getWriter().write(objectMapper.writeValueAsString(users));
+            return users;
+        } catch (Exception e) {
+            handleError(resp, e);
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public void updateUserRole(int userId, Role newRole, HttpServletResponse resp) {
+        try {
+            if (checkAdminRole(resp)) return;
+
+            Optional<User> optionalUser = userRepository.findById(userId);
+            if (optionalUser.isPresent()) {
+                User user = optionalUser.get();
+                user.setRole(newRole);
+                userRepository.save(user);
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.getWriter().write(objectMapper.writeValueAsString(user));
+            } else {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                resp.getWriter().write(objectMapper.writeValueAsString("User not found"));
+            }
+        } catch (Exception e) {
+            handleError(resp, e);
+        }
+    }
+
+    @Override
+    public Optional<User> viewMyInfo(HttpServletResponse resp) {
+        try {
+            if (AuditService.loggedInUser == null) {
+                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                resp.getWriter().write(objectMapper.writeValueAsString("User not logged in"));
+                return Optional.empty();
+            }
+
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getWriter().write(objectMapper.writeValueAsString(AuditService.loggedInUser));
+            return Optional.of(AuditService.loggedInUser);
+        } catch (Exception e) {
+            handleError(resp, e);
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<User> getUserById(int userId, HttpServletResponse resp) {
+        try {
+            Optional<User> user = userRepository.findById(userId);
+            if (user.isPresent()) {
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.getWriter().write(objectMapper.writeValueAsString(user.get()));
+                return user;
+            } else {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                resp.getWriter().write(objectMapper.writeValueAsString("User not found"));
+                return Optional.empty();
+            }
+        } catch (Exception e) {
+            handleError(resp, e);
+            return Optional.empty();
+        }
+    }
+
+    private void handleError(HttpServletResponse resp, Exception e) {
+        try {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write(objectMapper.writeValueAsString("Error: " + e.getMessage()));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }

@@ -1,59 +1,56 @@
 package ru.ylab.repository;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.*;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ru.ylab.config.DatabaseConfig;
+import ru.ylab.config.LiquibaseConfig;
 import ru.ylab.domain.enums.CarStatus;
 import ru.ylab.domain.model.Car;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
-@ExtendWith(MockitoExtension.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class CarRepositoryTest {
+
     @Container
     private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:latest")
             .withDatabaseName("testdb")
             .withUsername("test")
             .withPassword("test");
 
-    private CarRepository carRepository;
+    private static DatabaseConfig databaseConfig;
+    private static CarRepository carRepository;
 
-    @BeforeEach
-    public void setUp() throws Exception {
-        DatabaseConfig databaseConfig = new DatabaseConfig(
-                postgreSQLContainer.getJdbcUrl(),
-                postgreSQLContainer.getUsername(),
-                postgreSQLContainer.getPassword()
-        );
-        carRepository = new CarRepository(databaseConfig);
-
-        try (Connection connection = databaseConfig.getConnection()) {
-            String createTableSQL = "CREATE SCHEMA IF NOT EXISTS car_shop_schema;" +
-                    "CREATE TABLE IF NOT EXISTS car_shop_schema.cars (" +
-                    "id SERIAL PRIMARY KEY, " +
-                    "brand VARCHAR(50), " +
-                    "model VARCHAR(50), " +
-                    "year INTEGER, " +
-                    "price DOUBLE PRECISION, " +
-                    "status VARCHAR(20), " +
-                    "description TEXT" +
-                    ")";
-            try (Statement statement = connection.createStatement()) {
-                statement.execute(createTableSQL);
+    @BeforeAll
+    public static void setUpDatabaseConfig() {
+        databaseConfig = new DatabaseConfig() {
+            @Override
+            public Connection getConnection() {
+                try {
+                    return DriverManager.getConnection(
+                            postgreSQLContainer.getJdbcUrl(),
+                            postgreSQLContainer.getUsername(),
+                            postgreSQLContainer.getPassword());
+                } catch (Exception e) {
+                    throw new RuntimeException("Failed to connect to the database", e);
+                }
             }
-        }
+        };
+
+        carRepository = new CarRepository(databaseConfig);
+        LiquibaseConfig liquibaseConfig = new LiquibaseConfig(databaseConfig);
+        liquibaseConfig.runMigrations();
     }
+
+
 
     @Test
     @DisplayName("Save a car and find it by ID")
@@ -75,7 +72,7 @@ public class CarRepositoryTest {
     }
 
     @Test
-    @DisplayName("Update a car details")
+    @DisplayName("Update a car's details")
     public void testUpdate() {
         Car car = new Car();
         car.setBrand("Honda");

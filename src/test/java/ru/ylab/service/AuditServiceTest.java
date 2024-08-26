@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class AuditServiceTest {
+
     @Mock
     private AuditLogRepository auditLogRepository;
 
@@ -56,8 +57,20 @@ public class AuditServiceTest {
     @DisplayName("View all audit logs and verify the method is called")
     public void testViewAuditLogs() {
         List<AuditLog> logs = Arrays.asList(
-                new AuditLog(1, 1, "LOGIN", LocalDateTime.now(), "User logged in"),
-                new AuditLog(2, 2, "LOGOUT", LocalDateTime.now(), "User logged out")
+                AuditLog.builder()
+                        .id(1)
+                        .userId(1)
+                        .action("LOGIN")
+                        .timestamp(LocalDateTime.now())
+                        .details("User logged in")
+                        .build(),
+                AuditLog.builder()
+                        .id(2)
+                        .userId(2)
+                        .action("LOGOUT")
+                        .timestamp(LocalDateTime.now())
+                        .details("User logged out")
+                        .build()
         );
         when(auditLogRepository.findAll()).thenReturn(logs);
 
@@ -70,8 +83,20 @@ public class AuditServiceTest {
     @DisplayName("Filter audit logs by user ID and verify the results")
     public void testFilterByUserId() {
         List<AuditLog> logs = Arrays.asList(
-                new AuditLog(1, 1, "LOGIN", LocalDateTime.now(), "User logged in"),
-                new AuditLog(2, 2, "LOGOUT", LocalDateTime.now(), "User logged out")
+                AuditLog.builder()
+                        .id(1)
+                        .userId(1)
+                        .action("LOGIN")
+                        .timestamp(LocalDateTime.now())
+                        .details("User logged in")
+                        .build(),
+                AuditLog.builder()
+                        .id(2)
+                        .userId(1)
+                        .action("LOGIN")
+                        .timestamp(LocalDateTime.now())
+                        .details("User logged in again")
+                        .build()
         );
         when(auditLogRepository.findByUserId(1)).thenReturn(logs);
 
@@ -85,8 +110,20 @@ public class AuditServiceTest {
     @DisplayName("Filter audit logs by action and verify the results")
     public void testFilterByAction() {
         List<AuditLog> logs = Arrays.asList(
-                new AuditLog(1, 1, "LOGIN", LocalDateTime.now(), "User logged in"),
-                new AuditLog(2, 1, "LOGIN", LocalDateTime.now(), "User logged in again")
+                AuditLog.builder()
+                        .id(1)
+                        .userId(1)
+                        .action("LOGIN")
+                        .timestamp(LocalDateTime.now())
+                        .details("User logged in")
+                        .build(),
+                AuditLog.builder()
+                        .id(2)
+                        .userId(1)
+                        .action("LOGIN")
+                        .timestamp(LocalDateTime.now())
+                        .details("User logged in again")
+                        .build()
         );
         when(auditLogRepository.findByAction("LOGIN")).thenReturn(logs);
 
@@ -102,7 +139,13 @@ public class AuditServiceTest {
         LocalDateTime from = LocalDateTime.now().minusDays(1);
         LocalDateTime to = LocalDateTime.now();
         List<AuditLog> logs = Arrays.asList(
-                new AuditLog(1, 1, "LOGIN", LocalDateTime.now().minusHours(1), "User logged in")
+                AuditLog.builder()
+                        .id(1)
+                        .userId(1)
+                        .action("LOGIN")
+                        .timestamp(LocalDateTime.now().minusHours(1))
+                        .details("User logged in")
+                        .build()
         );
         when(auditLogRepository.findByTimestampRange(from, to)).thenReturn(logs);
 
@@ -117,7 +160,13 @@ public class AuditServiceTest {
     @DisplayName("Export audit logs to a file and verify the file content")
     public void testExportAuditLogsToFile() throws IOException {
         List<AuditLog> logs = Arrays.asList(
-                new AuditLog(1, 1, "LOGIN", LocalDateTime.now(), "User logged in")
+                AuditLog.builder()
+                        .id(1)
+                        .userId(1)
+                        .action("LOGIN")
+                        .timestamp(LocalDateTime.now())
+                        .details("User logged in")
+                        .build()
         );
         when(auditLogRepository.findAll()).thenReturn(logs);
 

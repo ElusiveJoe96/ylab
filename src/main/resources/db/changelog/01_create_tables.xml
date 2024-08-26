@@ -8,11 +8,10 @@
     <changeSet id="1" author="creator">
         <sql>
             CREATE SCHEMA IF NOT EXISTS car_shop_schema;
-            CREATE SCHEMA IF NOT EXISTS car_shop_log_schema;
         </sql>
     </changeSet>
 
-    <changeSet id="6" author="creator">
+    <changeSet id="2" author="creator">
         <createSequence
                 startValue="1"
                 incrementBy="1"
@@ -35,12 +34,12 @@
                 startValue="1"
                 incrementBy="1"
                 sequenceName="logs_id_seq"
-                schemaName="car_shop_log_schema"/>
+                schemaName="car_shop_schema"/>
     </changeSet>
 
-    <changeSet id="2" author="creator">
-        <createTable tableName="logs" schemaName="car_shop_log_schema">
-            <column name="id" type="int" defaultValueComputed="nextval('car_shop_log_schema.logs_id_seq')">
+    <changeSet id="3" author="creator">
+        <createTable tableName="logs" schemaName="car_shop_schema">
+            <column name="id" type="int" defaultValueComputed="nextval('car_shop_schema.logs_id_seq')">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="int">
@@ -58,7 +57,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="3" author="creator">
+    <changeSet id="4" author="creator">
         <createTable tableName="users" schemaName="car_shop_schema">
             <column name="id" type="int" defaultValueComputed="nextval('car_shop_schema.users_id_seq')">
                 <constraints primaryKey="true" nullable="false"/>
@@ -81,7 +80,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="4" author="creator">
+    <changeSet id="5" author="creator">
         <createTable tableName="cars" schemaName="car_shop_schema">
             <column name="id" type="int" defaultValueComputed="nextval('car_shop_schema.cars_id_seq')">
                 <constraints primaryKey="true" nullable="false"/>
@@ -107,7 +106,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="5" author="creator">
+    <changeSet id="6" author="creator">
         <createTable tableName="orders" schemaName="car_shop_schema">
             <column name="id" type="int" defaultValueComputed="nextval('car_shop_schema.orders_id_seq')">
                 <constraints primaryKey="true" nullable="false"/>
