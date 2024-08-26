@@ -29,8 +29,11 @@
         <map.struct.version>1.5.5.Final</map.struct.version>
         <spring.version>6.1.11</spring.version>
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
-        <jackson.version>2.15.3</jackson.version>
+        <jackson.version>2.16.2</jackson.version>
         <snakeyaml.varsion>2.0</snakeyaml.varsion>
+
+        <swagger>2.2.22</swagger>
+        <swagger-ui>4.15.5</swagger-ui>
     </properties>
 
     <dependencies>
@@ -38,12 +41,6 @@
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
             <version>${jakarta.servlet.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>${snakeyaml.varsion}</version>
         </dependency>
 
         <dependency>
@@ -104,12 +101,6 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>${map.struct.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
-            <version>${liquibase.version}</version>
         </dependency>
 
         <dependency>
@@ -194,6 +185,30 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-core</artifactId>
+            <version>${swagger}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-models</artifactId>
+            <version>${swagger}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>${swagger}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>swagger-ui</artifactId>
+            <version>5.17.14</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -225,7 +240,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.5.0</version>
                 <executions>
                     <execution>
                         <id>enforce-dependency-convergence</id>

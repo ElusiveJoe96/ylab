@@ -1,10 +1,14 @@
 package ru.ylab.config;
 
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import ru.ylab.audit.AuditLogRepository;
 import ru.ylab.audit.AuditService;
@@ -49,6 +53,26 @@ public class WebConfig implements WebMvcConfigurer {
         dataSource.setPassword("postgres");
         return dataSource;
     }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/swagger-ui/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/swagger-ui/5.17.14/");
+    }
+
+    @Bean
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI()
+                .info(new Info()
+                        .title("Car Shop API")
+                        .version("1.0")
+                        .description("API shop"))
+                .addServersItem(new Server()
+                        .url("http://localhost:8080/")
+                        .description("Local server"));
+    }
+
+
 
     @Bean
     public AuditLogRepository auditLogRepository(DataSource dataSource) {
