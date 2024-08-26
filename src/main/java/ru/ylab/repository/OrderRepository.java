@@ -3,7 +3,6 @@ package ru.ylab.repository;
 import ru.ylab.domain.enums.OrderType;
 import ru.ylab.domain.model.Order;
 import ru.ylab.domain.enums.OrderStatus;
-import ru.ylab.util.ResourceNotFoundException;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -93,11 +92,10 @@ public class OrderRepository {
              PreparedStatement statement = connection.prepareStatement(FIND_BY_ID_QUERY)) {
 
             statement.setInt(1, orderId);
-            try (ResultSet resultSet = statement.executeQuery()) {
+            ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
                     return Optional.of(mapRowToOrder(resultSet));
                 }
-            }
         } catch (SQLException e) {
             throw new RuntimeException("Error finding order by ID", e);
         }
@@ -138,11 +136,10 @@ public class OrderRepository {
                 throw new IllegalArgumentException("Unsupported field type: " + value.getClass().getName());
             }
 
-            try (ResultSet resultSet = statement.executeQuery()) {
+            ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     orders.add(mapRowToOrder(resultSet));
                 }
-            }
         } catch (SQLException e) {
             throw new RuntimeException("Error finding orders by field", e);
         }

@@ -61,12 +61,10 @@ public class CarRepository {
 
             statement.executeUpdate();
 
-            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+            ResultSet generatedKeys = statement.getGeneratedKeys();
                 if (generatedKeys.next()) {
                     car.setId(generatedKeys.getInt(1));
                 }
-            }
-
         } catch (SQLException e) {
             throw new RuntimeException("Error inserting car", e);
         }
@@ -78,10 +76,7 @@ public class CarRepository {
 
             setCarParameters(statement, car, true);
 
-            int rowsAffected = statement.executeUpdate();
-            if (rowsAffected == 0) {
-                throw new ResourceNotFoundException("Car with ID " + car.getId() + " not found for update.");
-            }
+            statement.executeUpdate();
 
         } catch (SQLException e) {
             throw new RuntimeException("Error updating car", e);
@@ -93,10 +88,8 @@ public class CarRepository {
              PreparedStatement statement = connection.prepareStatement(DELETE_CAR_QUERY)) {
 
             statement.setInt(1, carId);
-            int rowsAffected = statement.executeUpdate();
-            if (rowsAffected == 0) {
-                throw new ResourceNotFoundException("Car with ID " + carId + " not found for deletion.");
-            }
+            statement.executeUpdate();
+
         } catch (SQLException e) {
             throw new RuntimeException("Error deleting car", e);
         }

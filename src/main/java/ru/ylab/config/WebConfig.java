@@ -1,10 +1,6 @@
 package ru.ylab.config;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -12,6 +8,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import ru.ylab.audit.AuditLogRepository;
 import ru.ylab.audit.AuditService;
+import ru.ylab.auth.JwtService;
 import ru.ylab.repository.CarRepository;
 import ru.ylab.repository.OrderRepository;
 import ru.ylab.repository.UserRepository;
@@ -43,17 +40,6 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${spring.datasource.driver-class-name}")
     private String driverClassName;
 
-    //TODO
-    @Bean
-    public DataSource dataSource() {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl("jdbc:postgresql://postgres/car_shop_db");
-        dataSource.setUsername("postgres");
-        dataSource.setPassword("postgres");
-        return dataSource;
-    }
-
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/swagger-ui/**")
@@ -61,18 +47,14 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Car Shop API")
-                        .version("1.0")
-                        .description("API shop"))
-                .addServersItem(new Server()
-                        .url("http://localhost:8080/")
-                        .description("Local server"));
+    public DataSource dataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(driverClassName);
+        dataSource.setUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+        return dataSource;
     }
-
-
 
     @Bean
     public AuditLogRepository auditLogRepository(DataSource dataSource) {
@@ -100,8 +82,8 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public UserService userService(UserRepository userRepository) {
-        return new UserServiceImpl(userRepository);
+    public UserService userService(UserRepository userRepository, JwtService jwtService) {
+        return new UserServiceImpl(userRepository, jwtService);
     }
 
     @Bean
@@ -112,5 +94,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public CarService carService(CarRepository carRepository) {
         return new CarServiceImpl(carRepository);
+    }
+
+    @Bean
+    public JwtService jwtService() {
+        return new JwtService();
     }
 }

@@ -1,5 +1,6 @@
 package ru.ylab.service.implementation;
 
+import ru.ylab.auth.JwtService;
 import ru.ylab.domain.dto.UserDTO;
 import ru.ylab.domain.dto.mapper.UserMapper;
 import ru.ylab.domain.model.User;
@@ -15,9 +16,11 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper = UserMapper.INSTANCE;
+    private final JwtService jwtService;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, JwtService jwtService) {
         this.userRepository = userRepository;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -32,7 +35,12 @@ public class UserServiceImpl implements UserService {
     public Optional<UserDTO> authenticateUser(String email, String password) {
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
-            return Optional.of(userMapper.toDTO(userOpt.get()));
+            UserDTO userDTO = userMapper.toDTO(userOpt.get());
+
+            String token = jwtService.generateToken(userOpt.get());
+
+            userDTO.setToken(token);
+            return Optional.of(userDTO);
         }
         return Optional.empty();
     }
