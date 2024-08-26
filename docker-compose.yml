@@ -13,7 +13,6 @@ services:
     networks:
       - network
 
-
   tomcat:
     build:
       context: .
@@ -23,9 +22,27 @@ services:
       - "8080:8080"
     depends_on:
       - postgres
+      - liquibase
     networks:
       - network
 
+  liquibase:
+    image: liquibase/liquibase:latest
+    container_name: liquibase
+    volumes:
+      - ./src/main/resources/db/changelog:/liquibase/changelog
+    depends_on:
+      - postgres
+    entrypoint:
+      - liquibase
+    command:
+      - "--changeLogFile=changelog/db.changelog-master.xml"
+      - "--url=jdbc:postgresql://postgres:5432/car_shop_db?useSSL=false"
+      - "--username=postgres"
+      - "--password=postgres"
+      - "update"
+    networks:
+      - network
 
 volumes:
   postgres_data:

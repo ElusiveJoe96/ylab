@@ -1,14 +1,17 @@
 package ru.ylab.audit;
 
-import ru.ylab.config.DatabaseConfig;
 
+import org.springframework.stereotype.Repository;
+
+import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Repository
 public class AuditLogRepository {
-    private final DatabaseConfig databaseConfig;
+    private final DataSource databaseConfig;
 
     private static final String INSERT_LOG_QUERY =
             "INSERT INTO car_shop_schema.logs (user_id, action, timestamp, details) VALUES (?, ?, ?, ?)";
@@ -25,7 +28,7 @@ public class AuditLogRepository {
     private static final String SELECT_LOGS_BY_TIMESTAMP_RANGE_QUERY =
             "SELECT id, user_id, action, timestamp, details FROM car_shop_schema.logs WHERE timestamp BETWEEN ? AND ?";
 
-    public AuditLogRepository(DatabaseConfig databaseConfig) {
+    public AuditLogRepository(DataSource databaseConfig) {
         this.databaseConfig = databaseConfig;
     }
 
@@ -38,15 +41,8 @@ public class AuditLogRepository {
             statement.setTimestamp(3, Timestamp.valueOf(auditLog.getTimestamp()));
             statement.setString(4, auditLog.getDetails());
 
-            int rowsAffected = statement.executeUpdate();
+            statement.executeUpdate();
 
-            if (rowsAffected > 0) {
-                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        auditLog.setId(generatedKeys.getInt(1));
-                    }
-                }
-            }
         } catch (SQLException e) {
             throw new RuntimeException("Error saving audit log: " + e.getMessage(), e);
         }
@@ -76,11 +72,11 @@ public class AuditLogRepository {
 
             statement.setInt(1, userId);
 
-            try (ResultSet resultSet = statement.executeQuery()) {
+                ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     auditLogs.add(mapRowToAuditLog(resultSet));
                 }
-            }
+
         } catch (SQLException e) {
             throw new RuntimeException("Error retrieving audit logs for user ID " + userId + ": " + e.getMessage(), e);
         }
@@ -95,11 +91,11 @@ public class AuditLogRepository {
 
             statement.setString(1, action);
 
-            try (ResultSet resultSet = statement.executeQuery()) {
+            ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     auditLogs.add(mapRowToAuditLog(resultSet));
                 }
-            }
+
         } catch (SQLException e) {
             throw new RuntimeException("Error retrieving audit logs for action '" + action + "': " + e.getMessage(), e);
         }
@@ -115,11 +111,11 @@ public class AuditLogRepository {
             statement.setTimestamp(1, Timestamp.valueOf(from));
             statement.setTimestamp(2, Timestamp.valueOf(to));
 
-            try (ResultSet resultSet = statement.executeQuery()) {
+            ResultSet resultSet = statement.executeQuery();
                 while (resultSet.next()) {
                     auditLogs.add(mapRowToAuditLog(resultSet));
                 }
-            }
+
         } catch (SQLException e) {
             throw new RuntimeException("Error retrieving audit logs between " + from + " and " + to + ": " + e.getMessage(), e);
         }

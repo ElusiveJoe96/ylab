@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres/car_shop_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:db.changelog-master.xml
+    default-schema: public
+    drop-first: false
+    enabled: true
+    liquibase-schema: public
+logging:
+  level:
+    root: INFO
+    liquibase: DEBUG
+server:
+  port: 8080

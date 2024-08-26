@@ -1,5 +1,6 @@
 package ru.ylab.util;
 
+import ru.ylab.domain.dto.OrderDTO;
 import ru.ylab.domain.dto.UserDTO;
 
 import java.util.EnumSet;
@@ -32,6 +33,26 @@ public class ValidationUtil {
             throw new IllegalArgumentException("Contact info cannot be empty");
         }
     }
+
+
+    public static void validateOrderDTO(OrderDTO orderDTO) {
+        if (orderDTO.getCarId() <= 0) {
+            throw new IllegalArgumentException("Invalid car ID.");
+        }
+        if (orderDTO.getUserId() <= 0) {
+            throw new IllegalArgumentException("Invalid user ID.");
+        }
+        if (orderDTO.getOrderDate() == null) {
+            throw new IllegalArgumentException("Order date must not be null.");
+        }
+        if (orderDTO.getStatus() == null) {
+            throw new IllegalArgumentException("Order status must not be null.");
+        }
+        if (orderDTO.getType() == null) {
+            throw new IllegalArgumentException("Order type must not be null.");
+        }
+    }
+
 
     public static int getValidInt(Scanner scanner) {
         while (!scanner.hasNextInt()) {

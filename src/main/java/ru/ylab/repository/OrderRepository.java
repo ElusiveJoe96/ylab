@@ -1,17 +1,20 @@
 package ru.ylab.repository;
 
-import ru.ylab.config.DatabaseConfig;
 import ru.ylab.domain.enums.OrderType;
 import ru.ylab.domain.model.Order;
 import ru.ylab.domain.enums.OrderStatus;
+import ru.ylab.util.ResourceNotFoundException;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class OrderRepository {
-    private final DatabaseConfig databaseConfig;
+
+    private final DataSource dataSource;
 
     private static final String INSERT_ORDER_QUERY = "INSERT INTO car_shop_schema.orders " +
             "(user_id, car_id, order_date, status, type) " +
@@ -26,8 +29,8 @@ public class OrderRepository {
     private static final String FIND_BY_FIELD_QUERY = "SELECT id, user_id, car_id, order_date, status, type " +
             "FROM car_shop_schema.orders WHERE %s = ?";
 
-    public OrderRepository(DatabaseConfig databaseConfig) {
-        this.databaseConfig = databaseConfig;
+    public OrderRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public void save(Order order) {
@@ -39,7 +42,7 @@ public class OrderRepository {
     }
 
     private void insert(Order order) {
-        try (Connection connection = databaseConfig.getConnection();
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(INSERT_ORDER_QUERY, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setInt(1, order.getUserId());
@@ -48,22 +51,15 @@ public class OrderRepository {
             statement.setString(4, order.getStatus().name());
             statement.setString(5, order.getType().name());
 
-            int affectedRows = statement.executeUpdate();
+            statement.executeUpdate();
 
-            if (affectedRows > 0) {
-                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        order.setId(generatedKeys.getInt(1));
-                    }
-                }
-            }
         } catch (SQLException e) {
             throw new RuntimeException("Error inserting order", e);
         }
     }
 
     private void update(Order order) {
-        try (Connection connection = databaseConfig.getConnection();
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(UPDATE_ORDER_QUERY)) {
 
             statement.setInt(1, order.getUserId());
@@ -74,42 +70,43 @@ public class OrderRepository {
             statement.setInt(6, order.getId());
 
             statement.executeUpdate();
+
         } catch (SQLException e) {
             throw new RuntimeException("Error updating order", e);
         }
     }
 
     public void delete(int orderId) {
-        try (Connection connection = databaseConfig.getConnection();
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(DELETE_ORDER_QUERY)) {
 
             statement.setInt(1, orderId);
             statement.executeUpdate();
+
         } catch (SQLException e) {
             throw new RuntimeException("Error deleting order", e);
         }
     }
 
-    public Order findById(int orderId) {
-        try (Connection connection = databaseConfig.getConnection();
+    public Optional<Order> findById(int orderId) {
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(FIND_BY_ID_QUERY)) {
 
             statement.setInt(1, orderId);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    return mapRowToOrder(resultSet);
+                    return Optional.of(mapRowToOrder(resultSet));
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error finding order by id", e);
+            throw new RuntimeException("Error finding order by ID", e);
         }
-        return null;
+        return Optional.empty();
     }
 
     public List<Order> findAll() {
         List<Order> orders = new ArrayList<>();
-
-        try (Connection connection = databaseConfig.getConnection();
+        try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(FIND_ALL_QUERY)) {
 
@@ -124,10 +121,9 @@ public class OrderRepository {
 
     private List<Order> findByField(String fieldName, Object value) {
         List<Order> orders = new ArrayList<>();
-
-        try (Connection connection = databaseConfig.getConnection();
+        try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(String.format(FIND_BY_FIELD_QUERY, fieldName))) {
-
+            //TODO
             if (value instanceof String) {
                 statement.setString(1, (String) value);
             } else if (value instanceof Integer) {
