@@ -1,4 +1,4 @@
-FROM tomcat:9.0.93-jdk17
+FROM tomcat:10.1.25-jdk17
 
 COPY target/CarShopService-1.0-SNAPSHOT.war /usr/local/tomcat/webapps/CarShopService-1.0-SNAPSHOT.war
 

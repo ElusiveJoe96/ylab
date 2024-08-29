@@ -5,13 +5,14 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <changeSet id="1" author="creator">
+
+    <changeSet id="0" author="creator">
         <sql>
             CREATE SCHEMA IF NOT EXISTS car_shop_schema;
         </sql>
     </changeSet>
 
-    <changeSet id="2" author="creator">
+    <changeSet id="1" author="creator">
         <createSequence
                 startValue="1"
                 incrementBy="1"
@@ -37,7 +38,7 @@
                 schemaName="car_shop_schema"/>
     </changeSet>
 
-    <changeSet id="3" author="creator">
+    <changeSet id="2" author="creator">
         <createTable tableName="logs" schemaName="car_shop_schema">
             <column name="id" type="int" defaultValueComputed="nextval('car_shop_schema.logs_id_seq')">
                 <constraints primaryKey="true" nullable="false"/>
@@ -57,7 +58,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="4" author="creator">
+    <changeSet id="3" author="creator">
         <createTable tableName="users" schemaName="car_shop_schema">
             <column name="id" type="int" defaultValueComputed="nextval('car_shop_schema.users_id_seq')">
                 <constraints primaryKey="true" nullable="false"/>
@@ -80,7 +81,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="5" author="creator">
+    <changeSet id="4" author="creator">
         <createTable tableName="cars" schemaName="car_shop_schema">
             <column name="id" type="int" defaultValueComputed="nextval('car_shop_schema.cars_id_seq')">
                 <constraints primaryKey="true" nullable="false"/>
@@ -106,7 +107,7 @@
         </createTable>
     </changeSet>
 
-    <changeSet id="6" author="creator">
+    <changeSet id="5" author="creator">
         <createTable tableName="orders" schemaName="car_shop_schema">
             <column name="id" type="int" defaultValueComputed="nextval('car_shop_schema.orders_id_seq')">
                 <constraints primaryKey="true" nullable="false"/>
@@ -131,7 +132,8 @@
 
 
 
-    <changeSet id="7" author="creator">
+
+    <changeSet id="6" author="creator">
         <addForeignKeyConstraint baseTableName="orders"
                                  baseColumnNames="car_id"
                                  referencedTableName="cars"
@@ -148,4 +150,5 @@
                                  referencedTableSchemaName="car_shop_schema"
                                  constraintName="fk_orders_user_id"/>
     </changeSet>
+
 </databaseChangeLog>

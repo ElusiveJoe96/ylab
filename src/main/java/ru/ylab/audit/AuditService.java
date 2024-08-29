@@ -1,5 +1,6 @@
 package ru.ylab.audit;
 
+import org.springframework.stereotype.Service;
 import ru.ylab.domain.model.User;
 
 import java.io.BufferedWriter;
@@ -8,6 +9,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Service
 public class AuditService {
     public static User loggedInUser;
     private final AuditLogRepository auditLogRepository;

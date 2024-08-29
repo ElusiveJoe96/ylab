@@ -1,16 +1,19 @@
 package ru.ylab.service.implementation;
 
+import org.springframework.stereotype.Service;
 import ru.ylab.domain.dto.CarDTO;
 import ru.ylab.domain.dto.mapper.CarMapper;
 import ru.ylab.domain.model.Car;
-import ru.ylab.domain.enums.CarStatus;
 import ru.ylab.repository.CarRepository;
 import ru.ylab.service.CarService;
+import ru.ylab.util.ResourceNotFoundException;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
+@Service
 public class CarServiceImpl implements CarService {
+
     private final CarRepository carRepository;
     private final CarMapper carMapper = CarMapper.INSTANCE;
 
@@ -18,46 +21,46 @@ public class CarServiceImpl implements CarService {
         this.carRepository = carRepository;
     }
 
-
-    @Override
-    public void addCar(CarDTO carDTO) {
-        Car car = carMapper.toEntity(carDTO);
-        car.setStatus(CarStatus.AVAILABLE);
-        carRepository.save(car);
-    }
-
-    @Override
-    public boolean updateCar(CarDTO carDTO) {
-        Car car = carRepository.findById(carDTO.getId());
-        if (car != null) {
-            carMapper.updateEntityFromDTO(carDTO, car);
-            carRepository.save(car);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean deleteCar(int carId) {
-        Car car = carRepository.findById(carId);
-        if (car != null) {
-            carRepository.delete(carId);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public CarDTO getCarById(int carId) {
-        Car car = carRepository.findById(carId);
-        return car != null ? carMapper.toDTO(car) : null;
-    }
-
     @Override
     public List<CarDTO> getAllCars() {
         List<Car> cars = carRepository.findAll();
         return cars.stream()
                 .map(carMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
+    }
+
+    @Override
+    public CarDTO getCarById(int id) {
+        Car car = carRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Car with ID " + id + " not found."));
+        return carMapper.toDTO(car);
+    }
+
+    @Override
+    public CarDTO addCar(CarDTO carDTO) {
+        Optional<Car> existingCar = carRepository.findByModelAndYear(carDTO.getModel(), carDTO.getYear());
+        if (existingCar.isPresent()) {
+            throw new IllegalArgumentException("Car with model " + carDTO.getModel() + " and year " + carDTO.getYear() + " already exists.");
+        }
+        Car car = carMapper.toEntity(carDTO);
+        carRepository.save(car);
+        return carMapper.toDTO(car);
+    }
+
+    @Override
+    public CarDTO updateCar(int id, CarDTO carDTO) {
+        Car existingCar = carRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Car with ID " + id + " not found."));
+
+        carMapper.updateEntityFromDTO(carDTO, existingCar);
+        carRepository.save(existingCar);
+        return carMapper.toDTO(existingCar);
+    }
+
+    @Override
+    public void deleteCar(int id) {
+        Car existingCar = carRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Car with ID " + id + " not found."));
+        carRepository.delete(existingCar.getId());
     }
 }
