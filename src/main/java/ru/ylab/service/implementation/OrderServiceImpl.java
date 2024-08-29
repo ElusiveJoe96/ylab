@@ -1,5 +1,6 @@
 package ru.ylab.service.implementation;
 
+import org.springframework.stereotype.Service;
 import ru.ylab.domain.dto.OrderDTO;
 import ru.ylab.domain.dto.mapper.OrderMapper;
 import ru.ylab.domain.model.Order;
@@ -8,10 +9,9 @@ import ru.ylab.service.OrderService;
 import ru.ylab.util.ResourceNotFoundException;
 import ru.ylab.util.ValidationUtil;
 
-
 import java.util.List;
-import java.util.stream.Collectors;
 
+@Service
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
@@ -25,14 +25,14 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderDTO> getAllOrders() {
         return orderRepository.findAll().stream()
                 .map(orderMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public List<OrderDTO> getOrdersByUserId(int userId) {
         return orderRepository.findByClientId(userId).stream()
                 .map(orderMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

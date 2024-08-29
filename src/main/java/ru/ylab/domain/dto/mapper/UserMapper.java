@@ -37,6 +37,7 @@ public interface UserMapper {
      * @param user the {@link User} entity to convert
      * @return the corresponding {@link UserDTO} data transfer object
      */
+    @Mapping(target = "token", ignore = true)
     UserDTO toDTO(User user);
 
     /**
@@ -45,6 +46,7 @@ public interface UserMapper {
      * @param userDTO the {@link UserDTO} to convert
      * @return the corresponding {@link User} entity
      */
+    @Mapping(target = "id", ignore = true)
     User toEntity(UserDTO userDTO);
 
     /**

@@ -45,6 +45,7 @@ public interface OrderMapper {
      * @param orderDTO the {@link OrderDTO} to convert
      * @return the corresponding {@link Order} entity
      */
+    @Mapping(target = "id", ignore = true)
     Order toEntity(OrderDTO orderDTO);
 
     /**

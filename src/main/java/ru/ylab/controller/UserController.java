@@ -48,9 +48,7 @@ public class UserController {
 
         if (userOpt.isPresent()) {
             UserDTO userDTO = userOpt.get();
-            return ResponseEntity.ok()
-                    .header("Authorization", "Bearer " + userDTO.getToken())
-                    .body(userDTO);
+            return ResponseEntity.ok().body(userDTO);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }

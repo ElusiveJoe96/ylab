@@ -45,6 +45,7 @@ public interface CarMapper {
      * @param carDTO the {@link CarDTO} to convert
      * @return the corresponding {@link Car} entity
      */
+    @Mapping(target = "id", ignore = true)
     Car toEntity(CarDTO carDTO);
 
     /**

@@ -1,5 +1,6 @@
 package ru.ylab.service.implementation;
 
+import org.springframework.stereotype.Service;
 import ru.ylab.domain.dto.CarDTO;
 import ru.ylab.domain.dto.mapper.CarMapper;
 import ru.ylab.domain.model.Car;
@@ -9,8 +10,8 @@ import ru.ylab.util.ResourceNotFoundException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+@Service
 public class CarServiceImpl implements CarService {
 
     private final CarRepository carRepository;
@@ -25,7 +26,7 @@ public class CarServiceImpl implements CarService {
         List<Car> cars = carRepository.findAll();
         return cars.stream()
                 .map(carMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package ru.ylab.repository;
 
+import org.springframework.stereotype.Repository;
 import ru.ylab.domain.enums.OrderType;
 import ru.ylab.domain.model.Order;
 import ru.ylab.domain.enums.OrderStatus;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class OrderRepository {
 
     private final DataSource dataSource;

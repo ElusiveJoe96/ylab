@@ -1,5 +1,6 @@
 package ru.ylab.repository;
 
+import org.springframework.stereotype.Repository;
 import ru.ylab.domain.model.User;
 import ru.ylab.domain.enums.Role;
 import ru.ylab.util.ResourceNotFoundException;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class UserRepository {
     private final DataSource dataSource;
 

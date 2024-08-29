@@ -1,5 +1,6 @@
 package ru.ylab.service.implementation;
 
+import org.springframework.stereotype.Service;
 import ru.ylab.auth.JwtService;
 import ru.ylab.domain.dto.UserDTO;
 import ru.ylab.domain.dto.mapper.UserMapper;
@@ -11,8 +12,8 @@ import ru.ylab.util.ValidationUtil;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+@Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper = UserMapper.INSTANCE;
@@ -49,7 +50,7 @@ public class UserServiceImpl implements UserService {
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(userMapper::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

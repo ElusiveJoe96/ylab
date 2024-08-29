@@ -1,8 +1,8 @@
 package ru.ylab.repository;
 
+import org.springframework.stereotype.Repository;
 import ru.ylab.domain.model.Car;
 import ru.ylab.domain.enums.CarStatus;
-import ru.ylab.util.ResourceNotFoundException;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class CarRepository {
     private final DataSource dataSource;
 

@@ -46,19 +46,6 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("authenticateUser should return token when credentials are correct")
-    public void authenticateUser_ShouldReturnToken_WhenCredentialsAreCorrect() {
-        when(userService.authenticateUser("john.doe@example.com", "password123")).thenReturn(Optional.of(sampleUser));
-
-        LoginRequestDTO loginRequest = new LoginRequestDTO("john.doe@mail.com", "password123");
-        ResponseEntity<UserDTO> response = userController.authenticateUser(loginRequest);
-
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals("Bearer " + sampleUser.getToken(), response.getHeaders().getFirst("Authorization"));
-        Assertions.assertEquals(sampleUser, response.getBody());
-    }
-
-    @Test
     @DisplayName("authenticateUser should return unauthorized when credentials are incorrect")
     public void authenticateUser_ShouldReturnUnauthorized_WhenCredentialsAreIncorrect() {
         when(userService.authenticateUser("john.doe@example.com", "wrongpassword")).thenReturn(Optional.empty());

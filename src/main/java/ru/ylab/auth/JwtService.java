@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import ru.ylab.domain.model.User;
 
 import javax.crypto.SecretKey;
@@ -18,6 +19,7 @@ import java.util.Date;
  * The token contains user details such as name, role, and user ID, and it has an expiration time.
  * </p>
  */
+@Service
 public class JwtService {
 
     /**
