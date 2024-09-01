@@ -1,7 +1,7 @@
 package ru.ylab.service.implementation;
 
 import org.springframework.stereotype.Service;
-import ru.ylab.auth.JwtService;
+
 import ru.ylab.domain.dto.UserDTO;
 import ru.ylab.domain.dto.mapper.UserMapper;
 import ru.ylab.domain.model.User;
@@ -17,12 +17,11 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper = UserMapper.INSTANCE;
-    private final JwtService jwtService;
 
-    public UserServiceImpl(UserRepository userRepository, JwtService jwtService) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.jwtService = jwtService;
     }
+
 
     @Override
     public UserDTO registerUser(UserDTO userDTO) {
@@ -38,9 +37,6 @@ public class UserServiceImpl implements UserService {
         if (userOpt.isPresent() && userOpt.get().getPassword().equals(password)) {
             UserDTO userDTO = userMapper.toDTO(userOpt.get());
 
-            String token = jwtService.generateToken(userOpt.get());
-
-            userDTO.setToken(token);
             return Optional.of(userDTO);
         }
         return Optional.empty();

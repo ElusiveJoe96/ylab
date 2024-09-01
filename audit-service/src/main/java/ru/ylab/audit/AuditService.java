@@ -1,7 +1,6 @@
 package ru.ylab.audit;
 
 import org.springframework.stereotype.Service;
-import ru.ylab.domain.model.User;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -11,16 +10,15 @@ import java.util.List;
 
 @Service
 public class AuditService {
-    public static User loggedInUser;
+
     private final AuditLogRepository auditLogRepository;
 
     public AuditService(AuditLogRepository auditLogRepository) {
         this.auditLogRepository = auditLogRepository;
     }
 
-    public void logAction(int userId, String action, String details) {
+    public void logAction(String action, String details) {
         AuditLog log = AuditLog.builder()
-                .userId(userId)
                 .action(action)
                 .timestamp(LocalDateTime.now())
                 .details(details).build();

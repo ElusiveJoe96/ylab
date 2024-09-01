@@ -1,6 +1,5 @@
 package ru.ylab.audit;
 
-
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
