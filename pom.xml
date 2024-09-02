@@ -22,7 +22,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.plugin>3.11.0</maven.compiler.plugin>
 
-        <liquibase.version>4.23.1</liquibase.version>
+        <liquibase.version>4.24.0</liquibase.version>
         <postgresql.version>42.7.3</postgresql.version>
         <lombok.version>1.18.26</lombok.version>
         <junit.jupiter.platform.version>1.10.2</junit.jupiter.platform.version>
@@ -78,7 +78,7 @@
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
-            <version>4.24.0</version>
+            <version>${liquibase.version}</version>
         </dependency>
 
         <dependency>
@@ -109,6 +109,13 @@
             <artifactId>spring-boot-docker-compose</artifactId>
             <version>${spring.version}</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>3.2.0</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
